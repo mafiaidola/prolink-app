@@ -38,12 +38,6 @@ export default async function ProfilePage({ params }: Props) {
         
         <ProfileCard profile={profile} />
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-            <Link href="/" className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors">
-                <Icons.Logo className="w-4 h-4"/>
-                <span>Powered by ProLink</span>
-            </Link>
-        </div>
     </main>
   );
 }
