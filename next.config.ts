@@ -34,6 +34,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.simpleicons.org',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.svgrepo.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
