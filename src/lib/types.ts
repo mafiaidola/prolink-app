@@ -30,6 +30,10 @@ export type AnimatedBackground =
   | 'cells'
   | 'circles';
 
+export type ProfileLayout = 
+  | 'default' 
+  | 'stacked';
+
 export type Profile = {
   id: string;
   slug: string;
@@ -37,9 +41,11 @@ export type Profile = {
   jobTitle: string;
   bio: string;
   logoUrl: string;
+  coverUrl?: string; // New field for cover photo
   companyInfo: string;
   theme: Theme;
   animatedBackground: AnimatedBackground;
+  layout: ProfileLayout; // New field for layout
   isPublished: boolean;
   links: Link[];
 };

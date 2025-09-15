@@ -11,10 +11,12 @@ export default function NewProfilePage() {
         name: 'New Profile',
         jobTitle: 'Job Title',
         bio: '',
-        logoUrl: '',
+        logoUrl: 'https://picsum.photos/seed/new-profile/200/200',
+        coverUrl: 'https://picsum.photos/seed/new-profile-cover/800/300',
         companyInfo: '',
         theme: 'default',
         animatedBackground: 'none',
+        layout: 'default',
         isPublished: false,
         links: [],
     };

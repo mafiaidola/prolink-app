@@ -8,7 +8,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { Loader2 } from 'lucide-react';
 
 type Props = {
   open: boolean;
@@ -19,31 +20,41 @@ type Props = {
 
 export function QRCodeDialog({ open, onOpenChange, slug, name }: Props) {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const anchorRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (open && slug) {
+      setIsLoading(true);
       const profileUrl = `${window.location.origin}/${slug}`;
       const googleChartsUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(profileUrl)}&choe=UTF-8`;
-      setQrCodeUrl(googleChartsUrl);
+      
+      // Use fetch to get the QR code as a blob URL to enable direct download
+      fetch(googleChartsUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const blobUrl = window.URL.createObjectURL(blob);
+          setQrCodeUrl(blobUrl);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error("Failed to fetch QR code", error);
+          setIsLoading(false);
+        });
+
+      // Cleanup blob URL on component unmount or when dialog closes
+      return () => {
+        if (qrCodeUrl) {
+          window.URL.revokeObjectURL(qrCodeUrl);
+        }
+      };
     }
   }, [open, slug]);
 
   const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = qrCodeUrl;
-    link.download = `${slug}-qrcode.png`;
-    document.body.appendChild(link);
-    // We need to fetch the image and convert it to a blob to download it
-    // as Google Charts URL is not a direct download link.
-    fetch(qrCodeUrl)
-        .then(response => response.blob())
-        .then(blob => {
-            const blobUrl = window.URL.createObjectURL(blob);
-            link.href = blobUrl;
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
-        });
+    if (anchorRef.current) {
+        anchorRef.current.click();
+    }
   };
 
   return (
@@ -55,15 +66,25 @@ export function QRCodeDialog({ open, onOpenChange, slug, name }: Props) {
             Scan this QR code to view the profile. You can also download it.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-center items-center p-4">
-          {qrCodeUrl ? (
+        <div className="flex justify-center items-center p-4 min-h-[256px]">
+          {isLoading ? (
+            <div className="w-64 h-64 bg-gray-200 animate-pulse rounded-md flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground"/>
+            </div>
+          ) : qrCodeUrl ? (
             <img src={qrCodeUrl} alt={`QR Code for ${name}`} className="w-64 h-64" />
           ) : (
-            <div className="w-64 h-64 bg-gray-200 animate-pulse rounded-md" />
+            <p className="text-destructive">Failed to load QR code.</p>
           )}
         </div>
         <div className="flex justify-end">
-          <Button onClick={handleDownload} disabled={!qrCodeUrl}>
+           <a
+            ref={anchorRef}
+            href={qrCodeUrl}
+            download={`${slug}-qrcode.png`}
+            className="hidden"
+            />
+          <Button onClick={handleDownload} disabled={isLoading || !qrCodeUrl}>
             Download QR Code
           </Button>
         </div>

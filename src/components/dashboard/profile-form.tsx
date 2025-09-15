@@ -3,7 +3,7 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Profile, Theme, AnimatedBackground } from '@/lib/types';
+import type { Profile, Theme, AnimatedBackground, ProfileLayout } from '@/lib/types';
 import {
   Form,
   FormControl,
@@ -49,19 +49,21 @@ const profileSchema = z.object({
   slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
+  coverUrl: z.string().url('Must be a valid URL').optional(),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
   links: z.array(linkSchema),
   theme: z.string(),
   animatedBackground: z.string(),
+  layout: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
-const iconNames = [
-  'Link', 'Linkedin', 'Github', 'Twitter', 'Instagram', 'Facebook', 'Globe', 'Mail', 'Phone', 'MessageCircle', 'Youtube', 'Twitch', 'Figma', 'Dribbble', 'Code', 'Codepen', 'Book', 'FileText', 'Briefcase', 'ShoppingBag', 'Bitcoin'
-];
+const layouts: ProfileLayout[] = ['default', 'stacked'];
+const iconNames = Object.keys(LucideIcons).filter(key => key !== 'createReactComponent' && key !== 'icons' && /^[A-Z]/.test(key));
+
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const router = useRouter();
@@ -80,10 +82,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       slug: profile.slug,
       jobTitle: profile.jobTitle,
       bio: profile.bio,
+      coverUrl: profile.coverUrl,
       companyInfo: profile.companyInfo,
       links: profile.links,
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
+      layout: profile.layout,
     },
   });
 
@@ -97,14 +101,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground });
+        const newProfile = await createProfile({ ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
         });
         router.push(`/dashboard/edit/${newProfile.slug}`);
       } else {
-        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground };
+        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',
@@ -218,7 +222,21 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardHeader>
                 <CardTitle>Customization</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="grid md:grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="coverUrl"
+                    render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                        <FormLabel>Cover Photo URL</FormLabel>
+                        <FormControl>
+                            <Input placeholder="https://picsum.photos/seed/your-cover/800/300" {...field} />
+                        </FormControl>
+                        <FormDescription>URL for the cover photo that appears at the top of your profile.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="theme"
@@ -256,6 +274,28 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                 <SelectContent>
                                     {backgrounds.map(bg => (
                                         <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="layout"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Layout</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a layout" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {layouts.map(layout => (
+                                        <SelectItem key={layout} value={layout} className="capitalize">{layout}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

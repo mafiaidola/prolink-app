@@ -8,9 +8,11 @@ export const mockProfiles: Profile[] = [
     jobTitle: 'Digital Marketing Specialist',
     bio: 'Crafting digital experiences that connect and convert. Expert in SEO, content strategy, and social media engagement.',
     logoUrl: 'https://picsum.photos/seed/nour-logo/200/200',
+    coverUrl: 'https://picsum.photos/seed/nour-cover/800/300',
     companyInfo: 'At Innovatech Solutions, we drive growth through cutting-edge digital strategies and data-driven results.',
     theme: 'glass',
     animatedBackground: 'particles',
+    layout: 'default',
     isPublished: true,
     links: [
       { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin' },
@@ -27,9 +29,11 @@ export const mockProfiles: Profile[] = [
     jobTitle: 'Full-Stack Developer',
     bio: 'Building the web of tomorrow, one line of code at a time.',
     logoUrl: 'https://picsum.photos/seed/john-logo/200/200',
+    coverUrl: 'https://picsum.photos/seed/john-cover/800/300',
     companyInfo: 'Freelance Developer specialized in React and Node.js.',
     theme: 'dark',
     animatedBackground: 'stars',
+    layout: 'stacked',
     isPublished: true,
     links: [
         { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin' },
@@ -109,7 +113,8 @@ export const createProfile = async (newProfileData: Omit<Profile, 'id'>): Promis
     const newProfile: Profile = {
         ...newProfileData,
         id: new Date().toISOString(), // Generate a unique ID
-        logoUrl: `https://picsum.photos/seed/${newProfileData.slug}/200/200`
+        logoUrl: `https://picsum.photos/seed/${newProfileData.slug}/200/200`,
+        coverUrl: `https://picsum.photos/seed/${newProfileData.slug}-cover/800/300`,
     };
 
     profilesStore.push(newProfile);
