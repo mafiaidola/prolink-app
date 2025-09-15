@@ -1,11 +1,12 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/auth';
+'use server';
+
+import {NextResponse, type NextRequest} from 'next/server';
+import {getSession} from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
   const session = await getSession();
-  
-  // If requesting a dashboard route and not logged in, redirect to login
-  if (!session) {
+
+  if (!session?.isAdmin) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
