@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -49,6 +50,7 @@ const profileSchema = z.object({
   slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
+  logoUrl: z.string().url('Must be a valid URL').optional(),
   coverUrl: z.string().url('Must be a valid URL').optional(),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
   links: z.array(linkSchema),
@@ -62,7 +64,9 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
 const layouts: ProfileLayout[] = ['default', 'stacked'];
-const iconNames = Object.keys(LucideIcons).filter(key => key !== 'createReactComponent' && key !== 'icons' && /^[A-Z]/.test(key));
+const iconNames = Object.keys(LucideIcons).filter(
+  (key) => typeof (LucideIcons as any)[key] === 'object' && key !== 'default' && key !== 'icons'
+);
 
 
 export function ProfileForm({ profile }: { profile: Profile }) {
@@ -82,6 +86,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       slug: profile.slug,
       jobTitle: profile.jobTitle,
       bio: profile.bio,
+      logoUrl: profile.logoUrl,
       coverUrl: profile.coverUrl,
       companyInfo: profile.companyInfo,
       links: profile.links,
@@ -149,6 +154,20 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               <CardTitle>Core Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="logoUrl"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Logo URL</FormLabel>
+                    <FormControl>
+                        <Input placeholder="https://picsum.photos/seed/your-logo/200/200" {...field} />
+                    </FormControl>
+                    <FormDescription>URL for your profile picture or logo.</FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
               <FormField
                 control={form.control}
                 name="name"
@@ -338,6 +357,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                 <SelectContent>
                                   {iconNames.map(name => {
                                     const LoopIcon = (LucideIcons as any)[name];
+                                    if (!LoopIcon || typeof LoopIcon === 'function') return null;
                                     return (
                                       <SelectItem key={name} value={name}>
                                         <div className="flex items-center gap-2">
@@ -434,3 +454,5 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     </>
   );
 }
+
+    
