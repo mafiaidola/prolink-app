@@ -8,7 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { HomepageContent, Feature } from '@/lib/types';
-import { IconPicker } from '@/components/icon-picker';
 import { PlusCircle, Trash, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
@@ -127,7 +126,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                     <FormItem>
                                     <FormLabel>Icon</FormLabel>
                                     <FormControl>
-                                        <IconPicker value={field.value} onChange={field.onChange} />
+                                        <Input placeholder="e.g. Palette" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
