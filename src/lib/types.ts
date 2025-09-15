@@ -36,20 +36,21 @@ export type ProfileLayout =
   | 'minimalist-center';
 
 export type Profile = {
-  id: string;
+  id: string; // Will be a UUID from Supabase
   slug: string;
   name: string;
   jobTitle: string;
   bio: string;
   logoUrl: string;
-  coverUrl?: string; // New field for cover photo
+  coverUrl?: string;
   companyInfo: string;
   theme: Theme;
   animatedBackground: AnimatedBackground;
-  layout: ProfileLayout; // New field for layout
+  layout: ProfileLayout;
   isPublished: boolean;
   isVerified: boolean;
   links: Link[];
+  createdAt?: string; // Supabase adds this
 };
 
 export type SessionPayload = {

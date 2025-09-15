@@ -3,14 +3,9 @@
 import { z } from 'zod';
 import type { HomepageContent, Feature } from './types';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs/promises';
-import path from 'path';
+import { createClient } from './supabase';
 
-const homepageContentFilePath = path.join(process.cwd(), 'src', 'lib', 'database', 'homepage.json');
-
-const writeHomepageContent = async (content: HomepageContent): Promise<void> => {
-    await fs.writeFile(homepageContentFilePath, JSON.stringify(content, null, 2), 'utf-8');
-};
+const supabase = createClient();
 
 const featureSchema = z.object({
     icon: z.string().min(1, "Icon is required."),
@@ -50,7 +45,7 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
 
     const features: Feature[] = featuresData.filter(f => f && f.icon && f.title && f.description);
 
-    const data: HomepageContent = {
+    const data = {
         title: formData.get('title') as string,
         subtitle: formData.get('subtitle') as string,
         description: formData.get('description') as string,
@@ -68,12 +63,19 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
     }
     
     try {
-        await writeHomepageContent(validatedFields.data);
+        const { error } = await supabase
+            .from('homepage_content')
+            .update({ ...validatedFields.data, updatedAt: new Date().toISOString() })
+            .eq('id', 1);
+
+        if (error) throw error;
+        
         revalidatePath('/');
         revalidatePath('/dashboard/settings');
         return { success: true, message: "Settings saved successfully!" };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        console.error("Error saving settings to Supabase:", errorMessage);
         return { error: `Failed to save settings: ${errorMessage}` };
     }
 }

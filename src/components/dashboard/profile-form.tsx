@@ -89,7 +89,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
-      isVerified: profile.isVerified,
+      isVerified: profile.isVerified || false,
     },
   });
 
@@ -103,7 +103,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profile, ...data, isVerified: data.isVerified, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout });
+        const newProfile = await createProfile({ ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, isPublished: false, links: data.links || [] });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -111,7 +111,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         router.push(`/dashboard/edit/${newProfile.slug}`);
         router.refresh();
       } else {
-        const updated: Profile = { ...profile, ...data, isVerified: data.isVerified, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
+        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',

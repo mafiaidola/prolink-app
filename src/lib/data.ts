@@ -1,60 +1,52 @@
 import type { Profile, HomepageContent } from '@/lib/types';
-import fs from 'fs/promises';
-import path from 'path';
+import { createClient } from '@/lib/supabase';
 
-// Use path.join to create a platform-independent file path
-const profilesFilePath = path.join(process.cwd(), 'src', 'lib', 'database', 'profiles.json');
-const homepageContentFilePath = path.join(process.cwd(), 'src', 'lib', 'database', 'homepage.json');
+const supabase = createClient();
 
-// Helper function to read profiles from the JSON file
-export const readProfiles = async (): Promise<Profile[]> => {
-    try {
-        const data = await fs.readFile(profilesFilePath, 'utf-8');
-        return JSON.parse(data) as Profile[];
-    } catch (error) {
-        // If the file doesn't exist, return an empty array
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            return [];
-        }
-        throw error;
-    }
-};
-
-// Helper function to write profiles to the JSON file
-export const writeProfiles = async (profiles: Profile[]): Promise<void> => {
-    await fs.writeFile(profilesFilePath, JSON.stringify(profiles, null, 2), 'utf-8');
-};
-
-// Helper function to read homepage content from the JSON file
-const readHomepageContent = async (): Promise<HomepageContent> => {
-    try {
-        const data = await fs.readFile(homepageContentFilePath, 'utf-8');
-        return JSON.parse(data) as HomepageContent;
-    } catch (error) {
-         if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            // This is a fallback if the file is ever deleted.
-            const defaultData = {
-                title: 'ProLink',
-                subtitle: 'Your Ultimate Digital Profile Builder.',
-                description: 'Create, manage, and share a stunning, professional bio link page that brings all your content together.',
-                features: [],
-            };
-            await fs.writeFile(homepageContentFilePath, JSON.stringify(defaultData, null, 2), 'utf-8');
-            return defaultData;
-        }
-        throw error;
-    }
-};
-
+// Helper function to read profiles from Supabase
 export const getProfiles = async (): Promise<Profile[]> => {
-    return await readProfiles();
+    const { data, error } = await supabase.from('profiles').select('*').order('name');
+    if (error) {
+        console.error('Error fetching profiles:', error);
+        return [];
+    }
+    return data as Profile[];
 };
 
+// Helper function to read a single profile by slug from Supabase
 export const getProfileBySlug = async (slug: string): Promise<Profile | undefined> => {
-    const profiles = await readProfiles();
-    return profiles.find((p) => p.slug === slug);
+    const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).single();
+    if (error) {
+        console.error(`Error fetching profile with slug ${slug}:`, error);
+        return undefined;
+    }
+    return data as Profile;
 };
 
+// Helper function to read homepage content from Supabase
 export const getHomepageContent = async (): Promise<HomepageContent> => {
-  return await readHomepageContent();
+    const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
+
+    if (error || !data) {
+        console.error('Error fetching homepage content:', error);
+        // Provide a default fallback if the database is empty or errors out
+        return {
+            title: 'ProLink',
+            subtitle: 'Your Ultimate Digital Profile Builder.',
+            description: 'Create, manage, and share a stunning, professional bio link page that brings all your content together.',
+            features: [],
+            faviconUrl: '/favicon.ico',
+        };
+    }
+    
+    // Ensure features is an array
+    const features = Array.isArray(data.features) ? data.features : [];
+
+    return {
+        title: data.title || '',
+        subtitle: data.subtitle || '',
+        description: data.description || '',
+        features: features,
+        faviconUrl: data.faviconUrl || '/favicon.ico',
+    };
 };
