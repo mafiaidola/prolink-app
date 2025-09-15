@@ -37,8 +37,8 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
         .single();
 
     if (error) {
-        console.error('Error updating profile:', error);
-        throw new Error("Failed to update profile.");
+        console.error('Error updating profile:', error.message);
+        throw new Error(`Failed to update profile: ${error.message}`);
     }
     
     revalidatePath('/dashboard/profiles');
@@ -76,8 +76,8 @@ export async function createProfile(newProfileData: Omit<Profile, 'id' | 'create
         .single();
 
     if (error) {
-        console.error('Error creating profile:', error);
-        throw new Error("Failed to create profile.");
+        console.error('Error creating profile:', error.message);
+        throw new Error(`Failed to create profile: ${error.message}`);
     }
 
     revalidatePath('/dashboard/profiles');
