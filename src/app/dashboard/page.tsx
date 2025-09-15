@@ -20,7 +20,7 @@ export default async function DashboardPage() {
                 </div>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    New Profile
+                    مش شغال
                 </Button>
             </div>
             <Card>
