@@ -247,133 +247,135 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardHeader>
                 <CardTitle>Customization &amp; Settings</CardTitle>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-1 gap-6">
-                <FormField
-                    control={form.control}
-                    name="coverUrl"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Cover Photo</FormLabel>
-                        <FormControl>
-                           <ImageUpload 
-                             value={field.value}
-                             onChange={field.onChange}
-                             recommendedSize="800x300px"
-                           />
-                        </FormControl>
-                         <FormDescription>Upload a cover photo. Recommended size: 800x300px</FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <div className="grid md:grid-cols-3 gap-4">
-                  <FormField
-                      control={form.control}
-                      name="theme"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Theme</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Select a theme" />
-                                      </Trigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                      {themes.map(theme => (
-                                          <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="animatedBackground"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Animated Background</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Select a background" />
-                                      </Trigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                      {backgrounds.map(bg => (
-                                          <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="layout"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Layout</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Select a layout" />
-                                      </Trigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                      {layouts.map(layout => (
-                                          <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
+            <CardContent>
+                <div className="space-y-6">
+                    <FormField
+                        control={form.control}
+                        name="coverUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Cover Photo</FormLabel>
+                            <FormControl>
+                               <ImageUpload 
+                                 value={field.value}
+                                 onChange={field.onChange}
+                                 recommendedSize="800x300px"
+                               />
+                            </FormControl>
+                             <FormDescription>Upload a cover photo. Recommended size: 800x300px</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <FormField
+                          control={form.control}
+                          name="theme"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Theme</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                          <SelectTrigger>
+                                              <SelectValue placeholder="Select a theme" />
+                                          </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                          {themes.map(theme => (
+                                              <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="animatedBackground"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Animated Background</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                          <SelectTrigger>
+                                              <SelectValue placeholder="Select a background" />
+                                          </Trigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                          {backgrounds.map(bg => (
+                                              <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="layout"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Layout</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                          <SelectTrigger>
+                                              <SelectValue placeholder="Select a layout" />
+                                          </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                          {layouts.map(layout => (
+                                              <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="isPublished"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Published</FormLabel>
+                                    <FormDescription>
+                                        Enable this to make the profile page publicly accessible.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="isVerified"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Verified Profile</FormLabel>
+                                    <FormDescription>
+                                        Enable this to show a verified badge on the profile.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                 </div>
-                <FormField
-                    control={form.control}
-                    name="isPublished"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                                <FormLabel>Published</FormLabel>
-                                <FormDescription>
-                                    Enable this to make the profile page publicly accessible.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="isVerified"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                                <FormLabel>Verified Profile</FormLabel>
-                                <FormDescription>
-                                    Enable this to show a verified badge on the profile.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
             </CardContent>
           </Card>
 
