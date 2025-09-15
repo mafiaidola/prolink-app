@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical, BarChart } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -39,6 +39,7 @@ import { Switch } from '@/components/ui/switch';
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableItem } from './sortable-item';
+import { Slider } from '@/components/ui/slider';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -47,14 +48,31 @@ const linkSchema = z.object({
   icon: z.string().optional(),
 });
 
+const skillSchema = z.object({
+    name: z.string().min(1, "Skill name is required"),
+    level: z.number().min(0).max(100),
+});
+
 const contentBlockSchema = z.object({
     id: z.string(),
-    type: z.enum(['heading', 'text', 'image', 'quote']),
+    type: z.enum(['heading', 'text', 'image', 'quote', 'skills']),
     text: z.string().optional(),
     level: z.enum(['h1', 'h2', 'h3']).optional(),
     url: z.string().optional(),
     alt: z.string().optional(),
     author: z.string().optional(),
+    title: z.string().optional(), // For skills block
+    skills: z.array(skillSchema).optional(),
+});
+
+const vCardSchema = z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email("Invalid email").optional().or(z.literal('')),
+    phone: z.string().optional(),
+    company: z.string().optional(),
+    title: z.string().optional(),
+    website: z.string().url("Invalid URL").optional().or(z.literal('')),
 });
 
 
@@ -66,6 +84,7 @@ const profileSchema = z.object({
   coverUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
   content: z.array(contentBlockSchema),
   links: z.array(linkSchema),
+  vCard: vCardSchema.optional(),
   theme: z.string(),
   animatedBackground: z.string(),
   layout: z.string(),
@@ -99,6 +118,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       coverUrl: profile.coverUrl || '',
       content: profile.content || [],
       links: profile.links || [],
+      vCard: profile.vCard || { firstName: '', lastName: '', email: '', phone: '', company: '', title: '', website: '' },
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
@@ -139,12 +159,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             url: block.url || undefined,
             alt: block.alt || undefined,
             author: block.author || undefined,
+            title: block.title || undefined,
+            skills: block.skills || undefined,
         }))
     };
 
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [] });
+        const newProfile = await createProfile({ ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [], vCard: data.vCard });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -152,7 +174,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         router.push(`/dashboard/edit/${newProfile.slug}`);
         router.refresh();
       } else {
-        const updated: Profile = { ...profile, ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
+        const updated: Profile = { ...profile, ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, vCard: data.vCard };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',
@@ -183,7 +205,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     }
   };
 
-  const addBlock = (type: 'heading' | 'text' | 'image' | 'quote') => {
+  const addBlock = (type: 'heading' | 'text' | 'image' | 'quote' | 'skills') => {
     const newBlock: any = { id: new Date().toISOString(), type };
     switch (type) {
         case 'heading':
@@ -200,6 +222,10 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         case 'quote':
             newBlock.text = 'A memorable quote.';
             newBlock.author = 'Author';
+            break;
+        case 'skills':
+            newBlock.title = 'My Skills';
+            newBlock.skills = [{ name: 'Teamwork', level: 80 }];
             break;
     }
     appendContent(newBlock);
@@ -383,6 +409,23 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                                 />
                                             </div>
                                         )}
+                                        {field.type === 'skills' && (
+                                            <div className="space-y-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.title`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Skills Block Title</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormLabel>Skills</FormLabel>
+                                                <SkillsSubForm form={form} contentIndex={index} />
+                                            </div>
+                                        )}
                                     </div>
                                 </SortableItem>
                             ))}
@@ -394,7 +437,44 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('text')}><Pilcrow className="mr-2 h-4 w-4" /> Add Text</Button>
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('image')}><ImageIcon className="mr-2 h-4 w-4" /> Add Image</Button>
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('quote')}><MessageSquareQuote className="mr-2 h-4 w-4" /> Add Quote</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('skills')}><BarChart className="mr-2 h-4 w-4" /> Add Skills</Button>
                 </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+                <CardTitle>Contact Card (vCard)</CardTitle>
+                <FormDescription>
+                    Fill this information to allow users to save your contact details directly to their phone.
+                </FormDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="vCard.firstName" render={({ field }) => (
+                        <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Nour" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="vCard.lastName" render={({ field }) => (
+                        <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Al-Huda" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                </div>
+                <FormField control={form.control} name="vCard.email" render={({ field }) => (
+                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="contact@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                )}/>
+                <FormField control={form.control} name="vCard.phone" render={({ field }) => (
+                    <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+123456789" {...field} /></FormControl><FormMessage /></FormItem>
+                )}/>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="vCard.company" render={({ field }) => (
+                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="Creative Solutions Inc." {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="vCard.title" render={({ field }) => (
+                        <FormItem><FormLabel>Title / Position</FormLabel><FormControl><Input placeholder="Digital Marketer" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                </div>
+                 <FormField control={form.control} name="vCard.website" render={({ field }) => (
+                    <FormItem><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                )}/>
             </CardContent>
           </Card>
 
@@ -653,4 +733,65 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       />
     </>
   );
+}
+
+
+function SkillsSubForm({ form, contentIndex }: { form: any, contentIndex: number }) {
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: `content.${contentIndex}.skills`
+    });
+
+    return (
+        <div className="space-y-4 pl-4 border-l-2">
+            {fields.map((skill, skillIndex) => (
+                <div key={skill.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.skills.${skillIndex}.name`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Skill Name</FormLabel>
+                                <FormControl><Input placeholder="e.g., JavaScript" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.skills.${skillIndex}.level`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Proficiency ({field.value || 0}%)</FormLabel>
+                                <div className="flex items-center gap-2">
+                                    <FormControl>
+                                        <Slider
+                                            defaultValue={[field.value]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                            max={100}
+                                            step={5}
+                                        />
+                                    </FormControl>
+                                </div>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <Button type="button" variant="destructive" size="icon" onClick={() => remove(skillIndex)}>
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </div>
+            ))}
+             <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => append({ name: '', level: 75 })}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Skill
+            </Button>
+        </div>
+    );
 }

@@ -59,10 +59,31 @@ export type ImageBlock = ContentBlockBase & {
 export type QuoteBlock = ContentBlockBase & {
   type: 'quote';
   text: string;
-  author: string;
+  author?: string;
 };
 
-export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock;
+export type Skill = {
+  name: string;
+  level: number; // 0-100
+};
+
+export type SkillsBlock = ContentBlockBase & {
+    type: 'skills';
+    title: string;
+    skills: Skill[];
+};
+
+export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock | SkillsBlock;
+
+export type VCard = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  company: string;
+  title: string;
+  website: string;
+};
 
 export type Profile = {
   id: string; // Will be a UUID from Supabase
@@ -78,6 +99,7 @@ export type Profile = {
   isVerified: boolean;
   content: ContentBlock[];
   links: Link[];
+  vCard?: VCard;
   createdAt?: string; // Supabase adds this
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Profile, ContentBlock, HeadingBlock, TextBlock, ImageBlock, QuoteBlock } from '@/lib/types';
+import type { Profile, ContentBlock, HeadingBlock, TextBlock, ImageBlock, QuoteBlock, SkillsBlock } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,9 @@ import { useApp } from '@/components/providers';
 import { cn } from '@/lib/utils';
 import { translations } from '@/lib/translations';
 import Image from 'next/image';
-import { BadgeCheck, MessageSquare } from 'lucide-react';
+import { BadgeCheck, MessageSquare, Download } from 'lucide-react';
+import VCard from 'vcard-creator';
+import { Progress } from '../ui/progress';
 
 const themeStyles = {
   default: {
@@ -115,11 +117,45 @@ const getIcon = (iconUrl?: string) => {
     return <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
 };
 
+const VCardButton = ({ profile, theme }: { profile: Profile, theme: any }) => {
+    if (!profile.vCard || !profile.vCard.firstName) return null;
+
+    const handleDownload = () => {
+        const myVCard = new VCard();
+        myVCard
+            .addName(profile.vCard?.lastName, profile.vCard?.firstName)
+            .addCompany(profile.vCard?.company || '')
+            .addJobtitle(profile.vCard?.title || '')
+            .addEmail(profile.vCard?.email || '')
+            .addPhoneNumber(profile.vCard?.phone || '')
+            .addURL(profile.vCard?.website || '');
+        
+        const vCardString = myVCard.toString();
+        const blob = new Blob([vCardString], { type: "text/vcard;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${profile.slug}.vcf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    return (
+        <Button onClick={handleDownload} variant={theme.button as any} className={cn("w-full justify-center h-12 text-md group", theme.linkButton)}>
+            <Download className="h-5 w-5 rtl:ml-3 ltr:mr-3" />
+            <span>Save Contact</span>
+        </Button>
+    );
+}
+
 
 const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selectedTheme: any }) => {
     switch (block.type) {
         case 'heading':
-            const HeadingTag = block.level;
+            const HeadingTag = block.level as keyof JSX.IntrinsicElements;
             return <HeadingTag className={cn('font-headline', {
                 'text-2xl': HeadingTag === 'h1',
                 'text-xl': HeadingTag === 'h2',
@@ -128,7 +164,7 @@ const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selected
         case 'text':
             return <p className="text-sm">{block.text}</p>;
         case 'image':
-            return <div className="relative aspect-video w-full overflow-hidden rounded-md my-4"><Image src={block.url} alt={block.alt} layout="fill" objectFit="cover" /></div>;
+            return <div className="relative aspect-video w-full overflow-hidden rounded-md my-4"><Image src={block.url || ''} alt={block.alt || ''} layout="fill" objectFit="cover" /></div>;
         case 'quote':
             return (
                 <blockquote className={cn("border-l-4 pl-4 italic my-4", selectedTheme.separator)}>
@@ -138,6 +174,24 @@ const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selected
                     </p>
                     {block.author && <footer className="mt-2 text-sm not-italic">- {block.author}</footer>}
                 </blockquote>
+            );
+        case 'skills':
+            const skillsBlock = block as SkillsBlock;
+            return (
+                <div>
+                    <h3 className={cn("text-lg font-headline mb-3", selectedTheme.cardTitle)}>{skillsBlock.title}</h3>
+                    <div className="space-y-3">
+                        {skillsBlock.skills.map((skill, index) => (
+                            <div key={index}>
+                                <div className="flex justify-between items-center mb-1 text-sm">
+                                    <span>{skill.name}</span>
+                                    <span className={cn("font-mono text-xs", selectedTheme.cardDescription)}>{skill.level}%</span>
+                                </div>
+                                <Progress value={skill.level} className="h-2" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             );
         default:
             return null;
@@ -167,10 +221,11 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
-            {profile.links && profile.links.length > 0 && (
+            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
                 <>
                     <Separator className={cn("my-4", selectedTheme.separator)} />
                     <div className="flex flex-col space-y-3">
+                        <VCardButton profile={profile} theme={selectedTheme} />
                         {profile.links.map((link) => (
                             <Button
                                 key={link.id}
@@ -215,8 +270,9 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
-            {profile.links && profile.links.length > 0 && (
+            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
                 <div className="flex flex-col space-y-3 mt-6">
+                    <VCardButton profile={profile} theme={selectedTheme} />
                     {profile.links.map((link) => (
                         <Button
                             key={link.id}
@@ -254,8 +310,9 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
                 </div>
             </CardHeader>
             <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                {profile.links && profile.links.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-3 mt-4">
+                 {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+                    <div className="flex flex-wrap justify-center items-center gap-3 mt-4">
+                        <VCardButton profile={profile} theme={selectedTheme} />
                         {profile.links.map((link) => (
                              <Button
                                 key={link.id}

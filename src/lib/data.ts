@@ -17,9 +17,10 @@ const fallbackProfiles: Profile[] = [
         "content": [
             { "id": "bio-1", "type": "text", "text": "A passionate digital marketer with 5 years of experience in SEO, SMM, and content strategy. Helping businesses grow online." },
             { "id": "work-1", "type": "heading", "level": "h2", "text": "My Work" },
-            { "id": "work-2", "type": "text", "text": "Working at Creative Solutions Inc. We provide cutting-edge marketing solutions for startups and enterprises worldwide." }
+            { "id": "skills-1", "type": "skills", "title": "Key Skills", "skills": [{ "name": "SEO", "level": 90 }, { "name": "Content Strategy", "level": 85 }, { "name": "Social Media Marketing", "level": 95 }] }
         ],
-        "links": [{"id": "linkedin", "title": "LinkedIn Profile", "url": "https://linkedin.com/in/nour-al-huda", "icon": "https://cdn.simpleicons.org/linkedin/white"}, {"id": "twitter", "title": "Twitter / X", "url": "https://x.com/nour", "icon": "https://cdn.simpleicons.org/x/white"}, {"id": "website", "title": "Personal Website", "url": "https://nour.dev", "icon": "https://cdn.simpleicons.org/website/white"}]
+        "links": [{"id": "linkedin", "title": "LinkedIn Profile", "url": "https://linkedin.com/in/nour-al-huda", "icon": "https://cdn.simpleicons.org/linkedin/white"}, {"id": "twitter", "title": "Twitter / X", "url": "https://x.com/nour", "icon": "https://cdn.simpleicons.org/x/white"}, {"id": "website", "title": "Personal Website", "url": "https://nour.dev", "icon": "https://cdn.simpleicons.org/website/white"}],
+        "vCard": { "firstName": "Nour", "lastName": "Al-Huda", "email": "contact@nour.dev", "phone": "+1987654321", "company": "Creative Solutions", "title": "Digital Marketing Specialist", "website": "https://nour.dev" }
     },
     {
         "id": "2",
