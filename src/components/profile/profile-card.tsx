@@ -221,7 +221,7 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
-            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+            {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <>
                     <Separator className={cn("my-4", selectedTheme.separator)} />
                     <div className="flex flex-col space-y-3">
@@ -270,7 +270,7 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
-            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+            {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <div className="flex flex-col space-y-3 mt-6">
                     <VCardButton profile={profile} theme={selectedTheme} />
                     {profile.links.map((link) => (
@@ -310,7 +310,7 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
                 </div>
             </CardHeader>
             <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                 {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+                 {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                     <div className="flex flex-wrap justify-center items-center gap-3 mt-4">
                         <VCardButton profile={profile} theme={selectedTheme} />
                         {profile.links.map((link) => (
@@ -352,7 +352,7 @@ const ModernSplitLayout = ({ profile, selectedTheme, t }: { profile: Profile; se
             </div>
             <CardDescription className={cn("text-md mt-1", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
             
-             {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+             {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <>
                     <Separator className={cn("my-4 w-full", selectedTheme.separator)} />
                     <div className="flex flex-col space-y-3 w-full">
@@ -405,7 +405,7 @@ const MinimalistLeftAlignLayout = ({ profile, selectedTheme, t }: { profile: Pro
                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
-            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+            {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <div className="flex flex-col space-y-3 mt-6">
                     <VCardButton profile={profile} theme={selectedTheme} />
                     {profile.links.map((link) => (

@@ -116,11 +116,11 @@ const themePreviews: Record<Theme, { bg: string, text: string }> = {
 };
 
 const layoutPreviews: Record<ProfileLayout, React.ReactNode> = {
-    'default': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-3/4 h-2 mx-auto rounded-sm bg-current opacity-70" /></div>,
-    'stacked': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-full h-2 rounded-sm bg-current opacity-70" /></div>,
-    'minimalist-center': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-3/4 h-2 mx-auto rounded-sm bg-current" /><div className="w-1/2 h-2 mx-auto rounded-sm bg-current opacity-70" /></div>,
-    'modern-split': <div className="flex gap-2 items-center"><div className="w-10 h-10 rounded-full bg-current shrink-0" /><div className="space-y-1 flex-1"><div className="w-full h-2 rounded-sm bg-current" /><div className="w-full h-2 rounded-sm bg-current opacity-70" /></div></div>,
-    'minimalist-left-align': <div className="space-y-1 text-left"><div className="w-10 h-10 rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-3/4 h-2 rounded-sm bg-current opacity-70" /></div>,
+    'default': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="20" y="55" width="60" height="8" rx="4"/><rect x="30" y="70" width="40" height="6" rx="3"/></svg>,
+    'stacked': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="20" y="55" width="60" height="8" rx="4"/><rect x="20" y="70" width="60" height="6" rx="3"/></svg>,
+    'minimalist-center': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="30" y="55" width="40" height="8" rx="4"/><rect x="40" y="70" width="20" height="6" rx="3"/></svg>,
+    'modern-split': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="25" cy="50" r="15"/><rect x="50" y="40" width="40" height="8" rx="4"/><rect x="50" y="55" width="30" height="6" rx="3"/></svg>,
+    'minimalist-left-align': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="25" cy="25" r="15"/><rect x="10" y="50" width="80" height="8" rx="4"/><rect x="10" y="65" width="60" height="6" rx="3"/></svg>,
 };
 
 type ChoiceCardProps<T> = {
@@ -145,7 +145,7 @@ function ChoiceCards<T extends string>({ options, value, onChange, previews, ren
                             value === option ? 'border-primary shadow-lg' : 'border-border'
                         )}
                     >
-                        <div className={cn("h-16 w-full rounded-md flex items-center justify-center overflow-hidden", renderType === 'animation' ? 'bg-black' : 'bg-secondary')}>
+                        <div className={cn("h-16 w-full rounded-md flex items-center justify-center overflow-hidden", renderType === 'animation' && option !== 'none' ? 'bg-black' : 'bg-secondary')}>
                              {renderType === 'color' && typeof preview === 'object' && preview && 'bg' in preview && (
                                 <div className={cn('w-full h-full flex items-center justify-center', (preview as {bg:string}).bg)}>
                                     <span className={cn('font-bold text-xs', (preview as {text:string}).text)}>Aa</span>
