@@ -11,7 +11,7 @@ import type { HomepageContent, Feature } from '@/lib/types';
 import { PlusCircle, Trash, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React, { useActionState, useEffect } from 'react';
-import { saveSettings, type SettingsState } from '@/lib/actions';
+import { saveSettings, type SettingsState } from '@/lib/settings-actions';
 
 const featureSchema = z.object({
     icon: z.string().min(1, "Icon is required."),

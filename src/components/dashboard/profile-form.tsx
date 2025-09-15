@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
-import { createProfile, updateProfile } from '@/lib/data';
+import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { suggestProfileFields } from '@/ai/flows/suggest-profile-fields';
@@ -106,6 +106,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           description: 'Your new profile has been created successfully.',
         });
         router.push(`/dashboard/edit/${newProfile.slug}`);
+        router.refresh();
       } else {
         const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
         await updateProfile(updated);
