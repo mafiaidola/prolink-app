@@ -2,6 +2,12 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    // This is the correct place for this experimental flag
+    serverActions: {
+      bodySizeLimit: '4.5mb',
+    },
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
