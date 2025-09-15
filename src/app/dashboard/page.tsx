@@ -18,9 +18,11 @@ export default async function DashboardPage() {
                     <h1 className="text-3xl font-bold font-headline">Profiles</h1>
                     <p className="text-muted-foreground">Manage and customize your bio link profiles.</p>
                 </div>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    New Bio
+                <Button asChild>
+                    <Link href="/dashboard/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Bio
+                    </Link>
                 </Button>
             </div>
             <Card>

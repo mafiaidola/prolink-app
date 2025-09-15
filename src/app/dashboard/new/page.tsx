@@ -1,0 +1,41 @@
+import { ProfileForm } from "@/components/dashboard/profile-form";
+import { Button } from "@/components/ui/button";
+import type { Profile } from "@/lib/types";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+export default function NewProfilePage() {
+    const newProfile: Profile = {
+        id: '', // Will be set on the server
+        slug: '',
+        name: '',
+        jobTitle: '',
+        bio: '',
+        logoUrl: '',
+        companyInfo: '',
+        theme: 'default',
+        animatedBackground: 'none',
+        isPublished: false,
+        links: [],
+    };
+
+    return (
+        <div className="space-y-6">
+            <div>
+                <Button variant="ghost" asChild className="-ml-4">
+                    <Link href="/dashboard">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Profiles
+                    </Link>
+                </Button>
+            </div>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">New Profile</h1>
+                    <p className="text-muted-foreground">Create a new bio link profile.</p>
+                </div>
+            </div>
+            <ProfileForm profile={newProfile} />
+        </div>
+    );
+}

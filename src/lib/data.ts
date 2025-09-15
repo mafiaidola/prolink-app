@@ -52,8 +52,33 @@ export const getProfileBySlug = async (slug: string): Promise<Profile | undefine
 };
 
 export const updateProfile = async (updatedProfile: Profile): Promise<Profile> => {
+    const exists = profilesStore.some(p => p.id === updatedProfile.id);
+    if (!exists) {
+        throw new Error("Profile not found");
+    }
+    const slugInUse = profilesStore.some(p => p.slug === updatedProfile.slug && p.id !== updatedProfile.id);
+    if (slugInUse) {
+        throw new Error("Slug is already in use by another profile.");
+    }
+
     profilesStore = profilesStore.map((p) =>
         p.id === updatedProfile.id ? updatedProfile : p
     );
     return Promise.resolve(updatedProfile);
 };
+
+export const createProfile = async (newProfileData: Omit<Profile, 'id'>): Promise<Profile> => {
+    const slugInUse = profilesStore.some(p => p.slug === newProfileData.slug);
+    if (slugInUse) {
+        throw new Error("Slug is already in use.");
+    }
+
+    const newProfile: Profile = {
+        ...newProfileData,
+        id: new Date().toISOString(), // Generate a unique ID
+        logoUrl: `https://picsum.photos/seed/${newProfileData.slug}/200/200`
+    };
+
+    profilesStore.push(newProfile);
+    return Promise.resolve(newProfile);
+}

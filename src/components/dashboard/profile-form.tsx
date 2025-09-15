@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash, PlusCircle, Wand2, Loader2 } from 'lucide-react';
-import { updateProfile } from '@/lib/data';
+import { createProfile, updateProfile } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { suggestProfileFields } from '@/ai/flows/suggest-profile-fields';
@@ -43,6 +43,7 @@ const linkSchema = z.object({
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
@@ -57,11 +58,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const [isSaving, setIsSaving] = React.useState(false);
   const [isSuggesting, setIsSuggesting] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
+  
+  const isNewProfile = !profile.id;
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: profile.name,
+      slug: profile.slug,
       jobTitle: profile.jobTitle,
       bio: profile.bio,
       companyInfo: profile.companyInfo,
@@ -76,18 +80,28 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
-    const updated: Profile = { ...profile, ...data };
+    
     try {
-      await updateProfile(updated);
-      toast({
-        title: 'Profile Saved',
-        description: 'Your changes have been saved successfully.',
-      });
-      router.refresh();
-    } catch (error) {
+      if (isNewProfile) {
+        const newProfile = await createProfile({ ...profile, ...data });
+        toast({
+          title: 'Profile Created',
+          description: 'Your new profile has been created successfully.',
+        });
+        router.push(`/dashboard/edit/${newProfile.slug}`);
+      } else {
+        const updated: Profile = { ...profile, ...data };
+        await updateProfile(updated);
+        toast({
+          title: 'Profile Saved',
+          description: 'Your changes have been saved successfully.',
+        });
+        router.refresh();
+      }
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to save profile.',
+        description: error.message || 'Failed to save profile.',
         variant: 'destructive',
       });
     } finally {
@@ -126,6 +140,20 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     <FormControl>
                       <Input placeholder="e.g., Nour Al-Huda" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Slug</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., nour-al-huda" {...field} />
+                    </FormControl>
+                    <FormDescription>This will be the URL for your profile page. Use lowercase letters, numbers, and hyphens only.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -231,7 +259,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           <div className="flex justify-end">
             <Button type="submit" disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
+              {isNewProfile ? 'Create Profile' : 'Save Changes'}
             </Button>
           </div>
         </form>
