@@ -32,28 +32,38 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         return { error: "Application is not connected to the database. Please check configuration." };
     }
 
-    const featuresData = Array.from(formData.keys())
-        .filter(key => key.startsWith('features.'))
-        .reduce((acc, key) => {
-            const match = key.match(/features\.(\d+)\.(.*)/);
-            if(match) {
-                const [, indexStr, field] = match;
-                const index = parseInt(indexStr, 10);
-                if(!acc[index]) acc[index] = {} as any;
-                acc[index][field] = formData.get(key);
+    // Collect all keys related to features
+    const featureKeys = Array.from(formData.keys()).filter(key => key.startsWith('features.'));
+
+    // Group keys by index
+    const featuresByIndex: Record<string, Partial<Feature>> = {};
+    featureKeys.forEach(key => {
+        const match = key.match(/features\[(\d+)\]\.(icon|title|description)/);
+        if (match) {
+            const [, index, field] = match;
+            if (!featuresByIndex[index]) {
+                featuresByIndex[index] = {};
             }
-            return acc;
-        }, [] as any[]);
+            featuresByIndex[index][field as keyof Feature] = formData.get(key) as string;
+        }
+    });
 
-    const features: Feature[] = featuresData.filter(f => f && f.icon && f.title && f.description);
-
+    // Create a clean array of features, filtering out any empty or partial objects
+    const features: Feature[] = Object.values(featuresByIndex)
+        .map(f => ({
+            icon: f.icon || '',
+            title: f.title || '',
+            description: f.description || '',
+        }))
+        .filter(f => f.icon && f.title && f.description);
+        
     const data = {
         title: formData.get('title') as string,
         subtitle: formData.get('subtitle') as string,
         description: formData.get('description') as string,
         features: features,
         faviconUrl: formData.get('faviconUrl') as string,
-    }
+    };
 
     const validatedFields = homepageContentSchema.safeParse(data);
 
