@@ -75,7 +75,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                             <FormItem>
                                 <FormLabel>Main Title</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <Input {...field} name={field.name}/>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -88,7 +88,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                             <FormItem>
                                 <FormLabel>Subtitle</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <Input {...field} name={field.name}/>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -101,7 +101,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Textarea {...field} />
+                                    <Textarea {...field} name={field.name}/>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -114,7 +114,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                             <FormItem>
                                 <FormLabel>Favicon URL</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="https://example.com/favicon.ico" {...field} />
+                                    <Input placeholder="https://example.com/favicon.ico" {...field} name={field.name} />
                                 </FormControl>
                                 <FormDescription>
                                     Provide a URL to an external image to be used as the favicon.
@@ -136,7 +136,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                     <FormItem>
                                     <FormLabel>Icon</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Palette" {...field} />
+                                        <Input placeholder="e.g. Palette" {...field} name={field.name} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -150,7 +150,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                         <FormItem>
                                             <FormLabel>Feature Title</FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Input {...field} name={field.name} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -163,7 +163,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                         <FormItem>
                                             <FormLabel>Feature Description</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} />
+                                                <Textarea {...field} name={field.name} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

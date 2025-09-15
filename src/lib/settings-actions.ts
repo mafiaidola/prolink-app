@@ -37,7 +37,6 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
     const features: Feature[] = [];
     const featureKeys = Object.keys(rawData).filter(key => key.startsWith('features.'));
     
-    // Get the highest index to determine the number of features submitted
     const maxIndex = featureKeys.reduce((max, key) => {
         const match = key.match(/features\.(\d+)\./);
         if (match) {
@@ -52,8 +51,6 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         const title = formData.get(`features.${i}.title`) as string;
         const description = formData.get(`features.${i}.description`) as string;
 
-        // Only add the feature if all its fields are present and not empty.
-        // This handles cases where a feature is removed on the client.
         if (icon && title && description) {
             features.push({ icon, title, description });
         }
