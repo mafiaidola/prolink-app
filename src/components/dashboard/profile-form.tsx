@@ -36,7 +36,6 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
 import { Switch } from '@/components/ui/switch';
-import { ImageUpload } from './image-upload';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -155,25 +154,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               <CardTitle>Core Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-               <FormField
-                  control={form.control}
-                  name="logoUrl"
-                  render={({ field }) => (
-                      <FormItem>
-                          <FormLabel>Profile Picture</FormLabel>
-                          <FormControl>
-                            <ImageUpload 
-                                value={field.value}
-                                onChange={field.onChange}
-                                recommendedSize="200x200px"
-                                isAvatar
-                            />
-                          </FormControl>
-                          <FormDescription>Upload a profile picture. Recommended size: 200x200px</FormDescription>
-                          <FormMessage />
-                      </FormItem>
-                  )}
-                />
               <FormField
                 control={form.control}
                 name="name"
@@ -250,19 +230,29 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardContent>
                 <div className="space-y-6">
                     <FormField
+                      control={form.control}
+                      name="logoUrl"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Profile Picture URL</FormLabel>
+                              <FormControl>
+                                <Input placeholder="https://example.com/image.png" {...field} />
+                              </FormControl>
+                              <FormDescription>Enter an external URL for the profile picture.</FormDescription>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                    />
+                    <FormField
                         control={form.control}
                         name="coverUrl"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Cover Photo</FormLabel>
+                            <FormLabel>Cover Photo URL</FormLabel>
                             <FormControl>
-                               <ImageUpload 
-                                 value={field.value}
-                                 onChange={field.onChange}
-                                 recommendedSize="800x300px"
-                               />
+                               <Input placeholder="https://example.com/cover.png" {...field} />
                             </FormControl>
-                             <FormDescription>Upload a cover photo. Recommended size: 800x300px</FormDescription>
+                             <FormDescription>Enter an external URL for the cover photo.</FormDescription>
                             <FormMessage />
                             </FormItem>
                         )}
@@ -272,66 +262,66 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                           control={form.control}
                           name="theme"
                           render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Theme</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                          <SelectTrigger>
-                                              <SelectValue placeholder="Select a theme" />
-                                          </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                          {themes.map(theme => (
-                                              <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                              </FormItem>
+                            <FormItem>
+                                <FormLabel>Theme</FormLabel>
+                                <FormControl>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a theme" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {themes.map(theme => (
+                                                <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                           )}
                       />
                       <FormField
                           control={form.control}
                           name="animatedBackground"
                           render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Animated Background</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                          <SelectTrigger>
-                                              <SelectValue placeholder="Select a background" />
-                                          </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                          {backgrounds.map(bg => (
-                                              <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                              </FormItem>
+                            <FormItem>
+                                <FormLabel>Animated Background</FormLabel>
+                                  <FormControl>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a background" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {backgrounds.map(bg => (
+                                                <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                           )}
                       />
                       <FormField
                           control={form.control}
                           name="layout"
                           render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Layout</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                          <SelectTrigger>
-                                              <SelectValue placeholder="Select a layout" />
-                                          </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                          {layouts.map(layout => (
-                                              <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                              </FormItem>
+                            <FormItem>
+                                <FormLabel>Layout</FormLabel>
+                                <FormControl>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a layout" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {layouts.map(layout => (
+                                                <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                           )}
                       />
                     </div>
