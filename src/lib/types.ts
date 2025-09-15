@@ -68,4 +68,5 @@ export type HomepageContent = {
   subtitle: string;
   description: string;
   features: Feature[];
+  faviconUrl?: string;
 };

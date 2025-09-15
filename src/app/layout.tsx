@@ -1,11 +1,20 @@
 import type { Metadata } from 'next';
 import { AppProvider } from '@/components/providers';
 import './globals.css';
+import { getHomepageContent } from '@/lib/data';
 
-export const metadata: Metadata = {
-  title: 'ProLink - Your Digital Profile',
-  description: 'Create, manage, and share your professional digital profile with ProLink.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getHomepageContent();
+  
+  return {
+    title: 'ProLink - Your Digital Profile',
+    description: 'Create, manage, and share your professional digital profile with ProLink.',
+    icons: {
+      icon: content.faviconUrl || '/favicon.ico',
+    },
+  };
+}
+
 
 export default function RootLayout({
   children,

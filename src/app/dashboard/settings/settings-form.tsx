@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { HomepageContent, Feature } from '@/lib/types';
@@ -24,6 +24,7 @@ const homepageContentSchema = z.object({
     subtitle: z.string().min(1, "Subtitle is required."),
     description: z.string().min(1, "Description is required."),
     features: z.array(featureSchema),
+    faviconUrl: z.string().url().optional().or(z.literal('')),
 });
 
 
@@ -102,6 +103,22 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                 <FormControl>
                                     <Textarea {...field} />
                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="faviconUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Favicon URL</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="https://example.com/favicon.ico" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                    Provide a URL to an external image to be used as the favicon.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

@@ -23,6 +23,7 @@ const homepageContentSchema = z.object({
     subtitle: z.string().min(1, "Subtitle is required."),
     description: z.string().min(1, "Description is required."),
     features: z.array(featureSchema),
+    faviconUrl: z.string().url().optional().or(z.literal('')),
 });
 
 
@@ -54,6 +55,7 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         subtitle: formData.get('subtitle') as string,
         description: formData.get('description') as string,
         features: features,
+        faviconUrl: formData.get('faviconUrl') as string,
     }
 
     const validatedFields = homepageContentSchema.safeParse(data);
