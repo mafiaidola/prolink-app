@@ -334,11 +334,106 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
     </div>
 );
 
+const ModernSplitLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+    <Card className={cn("w-full max-w-4xl mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden md:grid md:grid-cols-3", selectedTheme.card)}>
+        <div className="md:col-span-1 md:border-r md:border-border/50 p-6 flex flex-col items-center text-center">
+            {profile.coverUrl && (
+                <div className="relative h-24 w-full mb-[-4rem]">
+                    <Image src={profile.coverUrl} alt={`${profile.name}'s cover photo`} fill style={{ objectFit: "cover" }} className='rounded-t-lg md:rounded-none' data-ai-hint="background abstract" />
+                </div>
+            )}
+             <Avatar className={cn("w-24 h-24 border-4 shadow-lg shrink-0", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
+                <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
+                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex items-center gap-2 mt-4">
+              <CardTitle className={cn("text-2xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+              {profile.isVerified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+            </div>
+            <CardDescription className={cn("text-md mt-1", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+            
+             {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+                <>
+                    <Separator className={cn("my-4 w-full", selectedTheme.separator)} />
+                    <div className="flex flex-col space-y-3 w-full">
+                        <VCardButton profile={profile} theme={selectedTheme} />
+                        {profile.links.map((link) => (
+                            <Button
+                                key={link.id}
+                                variant={selectedTheme.button as any}
+                                className={cn("w-full justify-start h-12 text-md group", selectedTheme.linkButton)}
+                                asChild
+                            >
+                                <Link href={link.url} target="_blank" rel="noopener noreferrer">
+                                    {getIcon(link.icon)}
+                                    <span>{link.title}</span>
+                                </Link>
+                            </Button>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+        <div className="md:col-span-2 p-6 md:p-8">
+            <div className="space-y-6">
+                 {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
+            </div>
+        </div>
+    </Card>
+);
+
+const MinimalistLeftAlignLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+    <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300", selectedTheme.card)}>
+        <CardContent className="p-6 md:p-8">
+            <div className="flex items-center gap-4">
+                <Avatar className={cn("w-16 h-16 border-2 shadow-sm shrink-0", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
+                    <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
+                    <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <div className="flex items-center gap-2">
+                        <CardTitle className={cn("text-2xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                        {profile.isVerified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+                    </div>
+                    <CardDescription className={cn("text-md", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                </div>
+            </div>
+            
+            <Separator className={cn("my-6", selectedTheme.separator)} />
+
+            <div className="space-y-4">
+                {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
+            </div>
+
+            {(profile.links && profile.links.length > 0 || profile.vCard?.firstName) && (
+                <div className="flex flex-col space-y-3 mt-6">
+                    <VCardButton profile={profile} theme={selectedTheme} />
+                    {profile.links.map((link) => (
+                        <Button
+                            key={link.id}
+                            variant={selectedTheme.button as any}
+                            className={cn("w-full justify-start h-12 text-md group", selectedTheme.linkButton)}
+                            asChild
+                        >
+                            <Link href={link.url} target="_blank" rel="noopener noreferrer">
+                                {getIcon(link.icon)}
+                                <span>{link.title}</span>
+                            </Link>
+                        </Button>
+                    ))}
+                </div>
+            )}
+        </CardContent>
+    </Card>
+);
+
 
 const layouts = {
     default: DefaultLayout,
     stacked: StackedLayout,
     'minimalist-center': MinimalistCenterLayout,
+    'modern-split': ModernSplitLayout,
+    'minimalist-left-align': MinimalistLeftAlignLayout,
 };
 
 export function ProfileCard({ profile }: { profile: Profile }) {

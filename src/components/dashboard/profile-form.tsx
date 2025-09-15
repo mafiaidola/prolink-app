@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical, BarChart } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical, BarChart, Check, Paintbrush, Sparkles, LayoutTemplate } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -40,6 +40,9 @@ import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableItem } from './sortable-item';
 import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
+import { AnimatedBackground as AnimatedBackgroundPreview } from '@/components/profile/animated-background';
+
 
 const linkSchema = z.object({
   id: z.string(),
@@ -96,7 +99,77 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
-const layouts: ProfileLayout[] = ['default', 'stacked', 'minimalist-center'];
+const layouts: ProfileLayout[] = ['default', 'stacked', 'minimalist-center', 'modern-split', 'minimalist-left-align'];
+
+const themePreviews: Record<Theme, { bg: string, text: string }> = {
+    default: { bg: 'bg-slate-100', text: 'text-slate-800' },
+    modern: { bg: 'bg-white', text: 'text-gray-800' },
+    classic: { bg: 'bg-[#FDF6E3]', text: 'text-[#655342]' },
+    glass: { bg: 'bg-gray-500/30', text: 'text-white' },
+    neon: { bg: 'bg-black', text: 'text-purple-400' },
+    minimal: { bg: 'bg-white', text: 'text-black' },
+    retro: { bg: 'bg-[#FFDAB9]', text: 'text-[#8B4513]' },
+    dark: { bg: 'bg-gray-900', text: 'text-white' },
+    corporate: { bg: 'bg-blue-50', text: 'text-blue-900' },
+    artistic: { bg: 'bg-gradient-to-br from-yellow-100 to-pink-100', text: 'text-gray-800' },
+    tech: { bg: 'bg-gray-900', text: 'text-teal-400' },
+};
+
+const layoutPreviews: Record<ProfileLayout, React.ReactNode> = {
+    'default': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-3/4 h-2 mx-auto rounded-sm bg-current opacity-70" /></div>,
+    'stacked': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-full h-2 rounded-sm bg-current opacity-70" /></div>,
+    'minimalist-center': <div className="space-y-1"><div className="w-10 h-10 mx-auto rounded-full bg-current" /><div className="w-3/4 h-2 mx-auto rounded-sm bg-current" /><div className="w-1/2 h-2 mx-auto rounded-sm bg-current opacity-70" /></div>,
+    'modern-split': <div className="flex gap-2 items-center"><div className="w-10 h-10 rounded-full bg-current shrink-0" /><div className="space-y-1 flex-1"><div className="w-full h-2 rounded-sm bg-current" /><div className="w-full h-2 rounded-sm bg-current opacity-70" /></div></div>,
+    'minimalist-left-align': <div className="space-y-1 text-left"><div className="w-10 h-10 rounded-full bg-current" /><div className="w-full h-2 rounded-sm bg-current" /><div className="w-3/4 h-2 rounded-sm bg-current opacity-70" /></div>,
+};
+
+type ChoiceCardProps<T> = {
+    options: T[];
+    value: T;
+    onChange: (value: T) => void;
+    previews: Record<string & T, React.ReactNode>;
+    renderType: 'color' | 'layout' | 'animation';
+};
+
+function ChoiceCards<T extends string>({ options, value, onChange, previews, renderType }: ChoiceCardProps<T>) {
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {options.map((option) => {
+                const preview = previews[option];
+                return (
+                    <div
+                        key={option}
+                        onClick={() => onChange(option)}
+                        className={cn(
+                            'relative cursor-pointer rounded-lg border-2 bg-card p-3 transition-all duration-200 hover:bg-accent/50',
+                            value === option ? 'border-primary shadow-lg' : 'border-border'
+                        )}
+                    >
+                        <div className={cn("h-16 w-full rounded-md flex items-center justify-center overflow-hidden", renderType === 'animation' ? 'bg-black' : 'bg-secondary')}>
+                             {renderType === 'color' && typeof preview === 'object' && preview && 'bg' in preview && (
+                                <div className={cn('w-full h-full flex items-center justify-center', (preview as {bg:string}).bg)}>
+                                    <span className={cn('font-bold text-xs', (preview as {text:string}).text)}>Aa</span>
+                                </div>
+                            )}
+                            {renderType === 'layout' && (
+                                <div className="w-full h-full flex items-center justify-center p-2 text-primary/70">
+                                    {preview}
+                                </div>
+                            )}
+                            {renderType === 'animation' && option !== 'none' && <AnimatedBackgroundPreview type={option as AnimatedBackground} />}
+                        </div>
+                        <p className="mt-2 text-center text-xs font-medium capitalize">{option.replace('-', ' ')}</p>
+                        {value === option && (
+                            <div className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <Check className="h-3 w-3" />
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const router = useRouter();
@@ -484,7 +557,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 <CardTitle>Customization &amp; Settings</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-6">
+                <div className="space-y-8">
                     <FormField
                       control={form.control}
                       name="logoUrl"
@@ -513,74 +586,67 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                             </FormItem>
                         )}
                     />
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <FormField
-                          control={form.control}
-                          name="theme"
-                          render={({ field }) => (
+                    <FormField
+                        control={form.control}
+                        name="layout"
+                        render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Theme</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a theme" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {themes.map(theme => (
-                                            <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="mb-4">
+                                  <FormLabel className="text-base flex items-center gap-2"><LayoutTemplate /> Layout</FormLabel>
+                                  <FormDescription>Choose how your profile content is structured.</FormDescription>
+                                </div>
+                                <ChoiceCards
+                                    options={layouts}
+                                    value={field.value as ProfileLayout}
+                                    onChange={field.onChange}
+                                    previews={layoutPreviews}
+                                    renderType='layout'
+                                />
                                 <FormMessage />
                             </FormItem>
-                          )}
-                      />
-                      <FormField
-                          control={form.control}
-                          name="animatedBackground"
-                          render={({ field }) => (
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="theme"
+                        render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Animated Background</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a background" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {backgrounds.map(bg => (
-                                            <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="mb-4">
+                                  <FormLabel className="text-base flex items-center gap-2"><Paintbrush /> Theme</FormLabel>
+                                  <FormDescription>Select a color scheme for your profile.</FormDescription>
+                                </div>
+                                <ChoiceCards
+                                    options={themes}
+                                    value={field.value as Theme}
+                                    onChange={field.onChange}
+                                    previews={themePreviews}
+                                    renderType='color'
+                                />
                                 <FormMessage />
                             </FormItem>
-                          )}
-                      />
-                      <FormField
-                          control={form.control}
-                          name="layout"
-                          render={({ field }) => (
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="animatedBackground"
+                        render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Layout</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a layout" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {layouts.map(layout => (
-                                            <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                 <div className="mb-4">
+                                  <FormLabel className="text-base flex items-center gap-2"><Sparkles /> Animated Background</FormLabel>
+                                  <FormDescription>Add a dynamic background effect to your profile.</FormDescription>
+                                </div>
+                                <ChoiceCards
+                                    options={backgrounds}
+                                    value={field.value as AnimatedBackground}
+                                    onChange={field.onChange}
+                                    previews={backgrounds.reduce((acc, bg) => ({...acc, [bg]: bg}), {})}
+                                    renderType='animation'
+                                />
                                 <FormMessage />
                             </FormItem>
-                          )}
-                      />
-                    </div>
+                        )}
+                    />
+
                     <FormField
                         control={form.control}
                         name="isPublished"

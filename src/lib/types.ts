@@ -33,7 +33,9 @@ export type AnimatedBackground =
 export type ProfileLayout = 
   | 'default' 
   | 'stacked'
-  | 'minimalist-center';
+  | 'minimalist-center'
+  | 'modern-split'
+  | 'minimalist-left-align';
 
 export type ContentBlockBase = {
   id: string;
