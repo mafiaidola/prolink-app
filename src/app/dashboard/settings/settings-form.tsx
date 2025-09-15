@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { HomepageContent, Feature } from '@/lib/types';
 import { PlusCircle, Trash, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import React, { useActionState } from 'react';
+import React, { useActionState, useEffect } from 'react';
 import { saveSettings, type SettingsState } from '@/lib/actions';
 
 const featureSchema = z.object({
@@ -48,7 +48,7 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
 
     const [state, formAction] = useActionState(saveSettings, initialState);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (state?.success) {
             toast({
                 title: 'Settings Saved',
@@ -63,23 +63,9 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
         }
     }, [state, toast]);
 
-    const onSubmit = (data: z.infer<typeof homepageContentSchema>) => {
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('subtitle', data.subtitle);
-        formData.append('description', data.description);
-        data.features.forEach((feature, index) => {
-            formData.append(`features.${index}.icon`, feature.icon);
-            formData.append(`features.${index}.title`, feature.title);
-            formData.append(`features.${index}.description`, feature.description);
-        });
-
-        formAction(formData);
-    };
-
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form action={formAction} className="space-y-8">
                 <div className="space-y-4">
                     <FormField
                         control={form.control}
