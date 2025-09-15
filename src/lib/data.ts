@@ -46,7 +46,7 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
 
     if (error || !data) {
-        if (error && error.code !== 'PGRST116') {
+        if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "exact one row not found"
             console.error('Error fetching homepage content:', error);
         }
         // Provide a default fallback if the database is empty or errors out
