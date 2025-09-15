@@ -144,7 +144,7 @@ export function QRCodeCustomizer({ options, setOptions }: QRCodeCustomizerProps)
                     >
                         <SelectTrigger>
                             <SelectValue placeholder="Style" />
-                        </Trigger>
+                        </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="squares">Squares</SelectItem>
                              <SelectItem value="dots">Dots</SelectItem>
