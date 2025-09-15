@@ -32,6 +32,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
         /* Individual background styles */
         .bg-anim-particles {
           background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+          height: 100%;
+          width: 100%;
         }
         .bg-anim-particles::after {
           content: '';
@@ -48,7 +50,7 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
           animation: move-particles 150s linear infinite;
         }
 
-        .bg-anim-stars { background-color: #000; }
+        .bg-anim-stars { background-color: #000; height: 100%; width: 100%; }
         .bg-anim-stars::before, .bg-anim-stars::after {
           content: '';
           position: absolute;
@@ -71,6 +73,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
         .bg-anim-waves {
           background: #3a3d98;
           background: linear-gradient( to right bottom, #4649ad, #3a3d98 50%, #2e307e );
+          height: 100%;
+          width: 100%;
         }
         .bg-anim-waves::before {
           content: "";
@@ -89,6 +93,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
         
         .bg-anim-electric {
           background-color: #000;
+          height: 100%;
+          width: 100%;
         }
         .bg-anim-electric::after {
           content: '';
@@ -103,6 +109,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
           background: linear-gradient(45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
           background-size: 400% 400%;
           animation: gradient-animation 15s ease infinite;
+          height: 100%;
+          width: 100%;
         }
         
         .bg-anim-aurora {
@@ -113,6 +121,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
                       #1e1b4b;
           background-size: 200% 200%;
           animation: aurora-animation 20s ease-in-out infinite alternate;
+          height: 100%;
+          width: 100%;
         }
 
         .bg-anim-lines {
@@ -120,6 +130,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
           background-image: linear-gradient(315deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
           background-size: 200% 200%;
           animation: move-lines 10s linear infinite alternate;
+          height: 100%;
+          width: 100%;
         }
 
         .bg-anim-cells {
@@ -131,6 +143,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
                 linear-gradient(-45deg, transparent 75%, #303030 75%);
             background-size: 20px 20px;
             animation: move-cells 5s linear infinite;
+            height: 100%;
+            width: 100%;
         }
 
         .bg-anim-circles {
@@ -139,6 +153,8 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
                         #ffffff;
             background-size: 30px 30px;
             animation: move-circles 10s linear infinite;
+            height: 100%;
+            width: 100%;
         }
       `}</style>
     </div>
