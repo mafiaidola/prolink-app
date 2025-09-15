@@ -32,32 +32,34 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         return { error: "Application is not connected to the database. Please check configuration." };
     }
 
-    // Collect all keys related to features
-    const featureKeys = Array.from(formData.keys()).filter(key => key.startsWith('features.'));
-
-    // Group keys by index
-    const featuresByIndex: Record<string, Partial<Feature>> = {};
-    featureKeys.forEach(key => {
-        const match = key.match(/features\[(\d+)\]\.(icon|title|description)/);
+    const rawData = Object.fromEntries(formData.entries());
+    
+    const features: Feature[] = [];
+    const featureKeys = Object.keys(rawData).filter(key => key.startsWith('features.'));
+    
+    // Get the highest index to determine the number of features submitted
+    const maxIndex = featureKeys.reduce((max, key) => {
+        const match = key.match(/features\.(\d+)\./);
         if (match) {
-            const [, index, field] = match;
-            if (!featuresByIndex[index]) {
-                featuresByIndex[index] = {};
-            }
-            featuresByIndex[index][field as keyof Feature] = formData.get(key) as string;
+            const index = parseInt(match[1], 10);
+            return Math.max(max, index);
         }
-    });
+        return max;
+    }, -1);
 
-    // Create a clean array of features, filtering out any empty or partial objects
-    const features: Feature[] = Object.values(featuresByIndex)
-        .map(f => ({
-            icon: f.icon || '',
-            title: f.title || '',
-            description: f.description || '',
-        }))
-        .filter(f => f.icon && f.title && f.description);
-        
-    const data = {
+    for (let i = 0; i <= maxIndex; i++) {
+        const icon = formData.get(`features.${i}.icon`) as string;
+        const title = formData.get(`features.${i}.title`) as string;
+        const description = formData.get(`features.${i}.description`) as string;
+
+        // Only add the feature if all its fields are present and not empty.
+        // This handles cases where a feature is removed on the client.
+        if (icon && title && description) {
+            features.push({ icon, title, description });
+        }
+    }
+
+    const dataToValidate = {
         title: formData.get('title') as string,
         subtitle: formData.get('subtitle') as string,
         description: formData.get('description') as string,
@@ -65,10 +67,10 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         faviconUrl: formData.get('faviconUrl') as string,
     };
 
-    const validatedFields = homepageContentSchema.safeParse(data);
+    const validatedFields = homepageContentSchema.safeParse(dataToValidate);
 
     if (!validatedFields.success) {
-        console.error(validatedFields.error.flatten().fieldErrors);
+        console.error("Zod validation failed:", validatedFields.error.flatten().fieldErrors);
         return {
             error: "Failed to validate settings. Please ensure all fields are filled correctly.",
         };
