@@ -56,6 +56,7 @@ const profileSchema = z.object({
   theme: z.string(),
   animatedBackground: z.string(),
   layout: z.string(),
+  isPublished: z.boolean(),
   isVerified: z.boolean(),
 });
 
@@ -89,6 +90,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
+      isPublished: profile.isPublished || false,
       isVerified: profile.isVerified || false,
     },
   });
@@ -103,7 +105,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, isPublished: false, links: data.links || [] });
+        const newProfile = await createProfile({ ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [] });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -237,7 +239,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
           <Card>
             <CardHeader>
-                <CardTitle>Customization</CardTitle>
+                <CardTitle>Customization &amp; Settings</CardTitle>
             </CardHeader>
             <CardContent className="grid md:grid-cols-1 gap-6">
                 <FormField
@@ -265,7 +267,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a theme" />
-                                      </SelectTrigger>
+                                      </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                       {themes.map(theme => (
@@ -287,7 +289,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a background" />
-                                      </SelectTrigger>
+                                      </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                       {backgrounds.map(bg => (
@@ -309,7 +311,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a layout" />
-                                      </SelectTrigger>
+                                      </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                       {layouts.map(layout => (
@@ -322,26 +324,48 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                       )}
                   />
                 </div>
-                 <FormField
-                    control={form.control}
-                    name="isVerified"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                                <FormLabel>Verified Profile</FormLabel>
-                                <FormDescription>
-                                    Enable this to show a verified badge on the profile.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
+                 <div className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="isPublished"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Published</FormLabel>
+                                    <FormDescription>
+                                        Enable this to make the profile page publicly accessible.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="isVerified"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Verified Profile</FormLabel>
+                                    <FormDescription>
+                                        Enable this to show a verified badge on the profile.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                 </div>
             </CardContent>
           </Card>
 
