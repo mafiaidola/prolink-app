@@ -40,7 +40,11 @@ const nextConfig: NextConfig = {
         hostname: 'www.svgrepo.com',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
   experimental: {
