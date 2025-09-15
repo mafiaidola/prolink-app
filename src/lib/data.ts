@@ -84,17 +84,18 @@ export const getProfileBySlug = async (slug: string): Promise<Profile | undefine
 };
 
 export const updateProfile = async (updatedProfile: Profile): Promise<Profile> => {
-    const exists = profilesStore.some(p => p.id === updatedProfile.id);
+    const profileId = updatedProfile.id;
+    const exists = profilesStore.some(p => p.id === profileId);
     if (!exists) {
         throw new Error("Profile not found");
     }
-    const slugInUse = profilesStore.some(p => p.slug === updatedProfile.slug && p.id !== updatedProfile.id);
+    const slugInUse = profilesStore.some(p => p.slug === updatedProfile.slug && p.id !== profileId);
     if (slugInUse) {
         throw new Error("Slug is already in use by another profile.");
     }
 
     profilesStore = profilesStore.map((p) =>
-        p.id === updatedProfile.id ? updatedProfile : p
+        p.id === profileId ? updatedProfile : p
     );
     return Promise.resolve(updatedProfile);
 };
