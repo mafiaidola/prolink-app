@@ -300,7 +300,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                       <FormControl>
                                           <SelectTrigger>
                                               <SelectValue placeholder="Select a background" />
-                                          </Trigger>
+                                          </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
                                           {backgrounds.map(bg => (
@@ -488,3 +488,5 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     </>
   );
 }
+
+    
