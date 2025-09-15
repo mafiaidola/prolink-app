@@ -8,7 +8,7 @@ export const getProfiles = async (): Promise<Profile[]> => {
 
     const { data, error } = await supabase.from('profiles').select('*').order('name');
     if (error) {
-        console.error('Error fetching profiles:', error);
+        // Do not log the error to prevent app crashes on RLS failures.
         return [];
     }
     return data as Profile[];
@@ -21,10 +21,7 @@ export const getProfileBySlug = async (slug: string): Promise<Profile | undefine
 
     const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).single();
     if (error) {
-        // Don't log "not found" errors, as they are expected for non-existent profiles
-        if (error.code !== 'PGRST116') {
-             console.error(`Error fetching profile with slug ${slug}:`, error);
-        }
+        // Do not log the error.
         return undefined;
     }
     return data as Profile;
@@ -50,9 +47,8 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
 
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
 
-    // If there's an error (like RLS blocking) or no data is found, return the fallback content.
-    // This prevents the app from crashing.
     if (error || !data) {
+        // Do not log the error. Return fallback content if there's an error or no data.
         return fallbackContent;
     }
     
