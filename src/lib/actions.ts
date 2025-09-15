@@ -4,7 +4,7 @@ import { createSession, deleteSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { updateHomepageContent } from './data';
-import type { HomepageContent } from './types';
+import type { HomepageContent, Feature } from './types';
 import { revalidatePath } from 'next/cache';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MoEP1337';
@@ -64,17 +64,21 @@ type SettingsState = {
 
 export async function saveSettings(prevState: SettingsState, formData: FormData): Promise<SettingsState> {
     
-    const features = Array.from(formData.keys())
+    const featuresData = Array.from(formData.keys())
         .filter(key => key.startsWith('features.'))
         .reduce((acc, key) => {
-            const [_, index, field] = key.match(/features\.(\d+)\.(.*)/) || [];
-            if(index && field) {
-                const idx = parseInt(index, 10);
-                if(!acc[idx]) acc[idx] = {} as any;
-                acc[idx][field] = formData.get(key);
+            const match = key.match(/features\.(\d+)\.(.*)/);
+            if(match) {
+                const [, indexStr, field] = match;
+                const index = parseInt(indexStr, 10);
+                if(!acc[index]) acc[index] = {} as any;
+                acc[index][field] = formData.get(key);
             }
             return acc;
         }, [] as any[]);
+
+    // Filter out any potentially empty objects
+    const features: Feature[] = featuresData.filter(f => f && f.icon && f.title && f.description);
 
     const data: HomepageContent = {
         title: formData.get('title') as string,
@@ -88,13 +92,14 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
     if (!validatedFields.success) {
         console.error(validatedFields.error.flatten().fieldErrors);
         return {
-            error: "Failed to validate settings.",
+            error: "Failed to validate settings. Please ensure all fields are filled correctly.",
         };
     }
     
     try {
         await updateHomepageContent(validatedFields.data);
         revalidatePath('/');
+        revalidatePath('/dashboard/settings');
         return { success: true, message: "Settings saved successfully!" };
     } catch (error) {
         return { error: "Failed to save settings." };
