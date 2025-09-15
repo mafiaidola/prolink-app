@@ -32,7 +32,6 @@ export const getProfileBySlug = async (slug: string): Promise<Profile | undefine
 
 // Helper function to read homepage content from Supabase
 export const getHomepageContent = async (): Promise<HomepageContent> => {
-    const supabase = createClient();
     const fallbackContent: HomepageContent = {
         title: 'ProLink',
         subtitle: 'Your Ultimate Digital Profile Builder.',
@@ -45,16 +44,15 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
         ],
         faviconUrl: '/favicon.ico',
     };
-
+    
+    const supabase = createClient();
     if (!supabase) return fallbackContent;
 
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
 
+    // If there's an error (like RLS blocking) or no data is found, return the fallback content.
+    // This prevents the app from crashing.
     if (error || !data) {
-        if (error && error.code !== 'PGRST116') { // PGRST116 means "exact one row not found"
-            console.error('Error fetching homepage content:', error);
-        }
-        // Provide a default fallback if the database is empty or errors out
         return fallbackContent;
     }
     
