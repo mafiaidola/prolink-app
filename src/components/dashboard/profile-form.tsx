@@ -293,7 +293,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a background" />
-                                      </Trigger>
+                                      </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
                                       {backgrounds.map(bg => (
@@ -315,7 +315,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a layout" />
-                                      </Trigger>
+                                      </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
                                       {layouts.map(layout => (
@@ -433,7 +433,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
        <QRCodeDialog 
         open={showQrCode} 
         onOpenChange={setShowQrCode} 
-        profile={profile}
+        slug={profile.slug}
+        name={profile.name}
       />
     </>
   );
