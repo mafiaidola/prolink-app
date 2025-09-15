@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Link as LinkIcon } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +36,6 @@ import {
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
-import * as LucideIcons from 'lucide-react';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -64,10 +63,6 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
 const layouts: ProfileLayout[] = ['default', 'stacked'];
-const iconNames = Object.keys(LucideIcons).filter(
-  (key) => typeof (LucideIcons as any)[key] === 'object' && key !== 'default' && key !== 'icons' && key !== 'createLucideIcon'
-);
-
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const router = useRouter();
@@ -337,41 +332,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => {
-                 const SelectedIcon = field.icon && iconNames.includes(field.icon) ? (LucideIcons as any)[field.icon] : LucideIcons.Link;
                  return (
-                    <div key={field.id} className="flex gap-4 items-end">
-                      <FormField
-                          control={form.control}
-                          name={`links.${index}.icon`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Icon</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="w-[80px]">
-                                    <SelectValue asChild>
-                                      <SelectedIcon className="h-5 w-5" />
-                                    </SelectValue>
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {iconNames.map(name => {
-                                    const LoopIcon = (LucideIcons as any)[name];
-                                    return (
-                                      <SelectItem key={name} value={name}>
-                                        <div className="flex items-center gap-2">
-                                          <LoopIcon className="h-5 w-5" />
-                                          <span>{name}</span>
-                                        </div>
-                                      </SelectItem>
-                                    )
-                                  })}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    <div key={field.id} className="flex gap-4 items-center">
+                      <div className="p-2.5 border rounded-md bg-background">
+                         <LinkIcon className="h-5 w-5" />
+                      </div>
                       <FormField
                         control={form.control}
                         name={`links.${index}.title`}
@@ -453,5 +418,3 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     </>
   );
 }
-
-    
