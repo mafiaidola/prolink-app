@@ -56,7 +56,7 @@ const homepageContentSchema = z.object({
 });
 
 
-type SettingsState = {
+export type SettingsState = {
     error?: string;
     success?: boolean;
     message?: string;
@@ -77,7 +77,6 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
             return acc;
         }, [] as any[]);
 
-    // Filter out any potentially empty objects
     const features: Feature[] = featuresData.filter(f => f && f.icon && f.title && f.description);
 
     const data: HomepageContent = {
@@ -102,6 +101,7 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         revalidatePath('/dashboard/settings');
         return { success: true, message: "Settings saved successfully!" };
     } catch (error) {
-        return { error: "Failed to save settings." };
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        return { error: `Failed to save settings: ${errorMessage}` };
     }
 }
