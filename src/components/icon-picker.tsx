@@ -7,7 +7,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
-const iconNames = Object.keys(LucideIcons).filter(key => key !== 'createReactComponent' && key !== 'LucideProps' && key !== 'icons');
+const iconNames = Object.keys(LucideIcons).filter(
+  (key) =>
+    key !== 'createReactComponent' &&
+    key !== 'LucideProps' &&
+    key !== 'icons' &&
+    typeof (LucideIcons as any)[key] === 'object'
+);
 
 export function IconPicker({ value, onChange }: { value?: string, onChange: (value: string) => void }) {
     const [open, setOpen] = useState(false);
