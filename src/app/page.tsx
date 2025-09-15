@@ -1,14 +1,12 @@
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import * as LucideIcons from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getHomepageContent } from '@/lib/data';
 
 export default async function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
   const content = await getHomepageContent();
   
   const getIcon = (name: string) => {
@@ -21,16 +19,14 @@ export default async function Home() {
       <Header />
       <main className="flex-1">
         <section className="relative w-full py-20 md:py-32 lg:py-40">
-          {heroImage && (
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="object-cover z-0"
-              data-ai-hint={heroImage.imageHint}
-              priority
-            />
-          )}
+          <Image
+            src="https://picsum.photos/seed/prolink-hero/1200/800"
+            alt="Abstract background with purple and pink gradients representing digital connections."
+            fill
+            className="object-cover z-0"
+            data-ai-hint="abstract gradient"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
           <div className="container relative z-20 px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">

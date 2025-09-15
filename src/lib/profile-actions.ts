@@ -6,7 +6,12 @@ import { createClient } from './supabase';
 
 export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
     const supabase = createClient();
-    if (!supabase) throw new Error("Supabase client is not initialized.");
+    if (!supabase) {
+      console.warn("Supabase client not initialized. Cannot update profile.");
+      // In a real scenario, you might want to return the object to avoid breaking the UI
+      // but indicate that the save was not successful. For this demo, we'll throw.
+      throw new Error("Database not connected. Please configure Supabase credentials.");
+    }
 
     const profileId = updatedProfile.id;
     if (!profileId) {
@@ -50,12 +55,15 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 
 export async function createProfile(newProfileData: Omit<Profile, 'id' | 'createdAt'>): Promise<Profile> {
     const supabase = createClient();
-    if (!supabase) throw new Error("Supabase client is not initialized.");
+    if (!supabase) {
+      console.warn("Supabase client not initialized. Cannot create profile.");
+      throw new Error("Database not connected. Please configure Supabase credentials.");
+    }
 
     // Check if slug is already in use
     const { data: existing } = await supabase
         .from('profiles')
-        .select('id')
+        select('id')
         .eq('slug', newProfileData.slug)
         .single();
 

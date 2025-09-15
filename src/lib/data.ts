@@ -1,15 +1,50 @@
 import type { Profile, HomepageContent } from '@/lib/types';
 import { createClient } from '@/lib/supabase';
 
+const fallbackProfiles: Profile[] = [
+    {
+        "id": "1",
+        "slug": "nour-al-huda",
+        "name": "Nour Al-Huda",
+        "jobTitle": "Digital Marketing Specialist",
+        "bio": "A passionate digital marketer with 5 years of experience in SEO, SMM, and content strategy. Helping businesses grow online.",
+        "logoUrl": "https://picsum.photos/seed/nour-al-huda/200/200",
+        "coverUrl": "https://picsum.photos/seed/nour-al-huda-cover/800/300",
+        "companyInfo": "Working at Creative Solutions Inc. We provide cutting-edge marketing solutions for startups and enterprises worldwide.",
+        "theme": "modern",
+        "animatedBackground": "particles",
+        "layout": "default",
+        "isPublished": true,
+        "isVerified": true,
+        "links": [{"id": "linkedin", "title": "LinkedIn Profile", "url": "https://linkedin.com/in/nour-al-huda", "icon": "https://cdn.simpleicons.org/linkedin/white"}, {"id": "twitter", "title": "Twitter / X", "url": "https://x.com/nour", "icon": "https://cdn.simpleicons.org/x/white"}, {"id": "website", "title": "Personal Website", "url": "https://nour.dev", "icon": "https://cdn.simpleicons.org/website/white"}]
+    },
+    {
+        "id": "2",
+        "slug": "ahmed-khan",
+        "name": "Ahmed Khan",
+        "jobTitle": "Senior Frontend Developer",
+        "bio": "Building beautiful and performant user interfaces with React and Next.js. Lover of clean code and good coffee.",
+        "logoUrl": "https://picsum.photos/seed/ahmed-khan/200/200",
+        "coverUrl": "https://picsum.photos/seed/ahmed-khan-cover/800/300",
+        "companyInfo": "Lead Developer at Tech Innovators. We build scalable web applications for the future.",
+        "theme": "tech",
+        "animatedBackground": "lines",
+        "layout": "stacked",
+        "isPublished": true,
+        "isVerified": false,
+        "links": [{"id": "github", "title": "GitHub Profile", "url": "https://github.com/ahmed-khan", "icon": "https://cdn.simpleicons.org/github/white"}, {"id": "portfolio", "title": "Portfolio", "url": "https://ahmed-khan-portfolio.com", "icon": "https://cdn.simpleicons.org/briefcase/white"}]
+    }
+];
+
 // Helper function to read profiles from Supabase
 export const getProfiles = async (): Promise<Profile[]> => {
     const supabase = createClient();
-    if (!supabase) return [];
+    if (!supabase) return fallbackProfiles;
 
     const { data, error } = await supabase.from('profiles').select('*').order('name');
     if (error) {
-        // Do not log the error to prevent app crashes on RLS failures.
-        return [];
+        console.warn('Error fetching profiles, returning fallback. Supabase error:', error.message);
+        return fallbackProfiles;
     }
     return data as Profile[];
 };
@@ -17,12 +52,14 @@ export const getProfiles = async (): Promise<Profile[]> => {
 // Helper function to read a single profile by slug from Supabase
 export const getProfileBySlug = async (slug: string): Promise<Profile | undefined> => {
     const supabase = createClient();
-    if (!supabase) return undefined;
+    if (!supabase) {
+        return fallbackProfiles.find(p => p.slug === slug);
+    }
 
     const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).single();
     if (error) {
-        // Do not log the error.
-        return undefined;
+        console.warn(`Error fetching profile for slug "${slug}", returning fallback. Supabase error:`, error.message);
+        return fallbackProfiles.find(p => p.slug === slug);
     }
     return data as Profile;
 };
@@ -37,7 +74,7 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
             { "icon": "Palette", "title": "Stunning Customization", "description": "Choose from multiple themes, animated backgrounds, and custom colors to make your profile truly yours." },
             { "icon": "SlidersHorizontal", "title": "Advanced Controls", "description": "Manage unlimited links, generate custom slugs, and get suggestions for your profile fields with our AI assistant." },
             { "icon": "QrCode", "title": "Dynamic QR Codes", "description": "Create and customize QR codes with your logo and brand colors to bridge the physical and digital worlds." },
-            { "icon": "Languages", "title": "Bilingual Support", "description": "Full support for English (LTR) and Arabic (RTL) to reach a wider audience effortlessly." }
+            { "icon": "Languages", "title": "Bilingual Support", "description": "Full support for English (LTR) and Arabic (RTL) to reach a wider audience." }
         ],
         faviconUrl: '/favicon.ico',
     };
@@ -47,12 +84,11 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
 
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
 
-    if (error || !data) {
-        // Do not log the error. Return fallback content if there's an error or no data.
+    if (error) {
+        console.warn('Error fetching homepage content, returning fallback. Supabase error:', error.message);
         return fallbackContent;
     }
     
-    // Ensure features is an array
     const features = Array.isArray(data.features) ? data.features : [];
 
     return {
