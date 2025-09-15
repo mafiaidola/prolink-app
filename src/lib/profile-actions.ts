@@ -22,8 +22,8 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
     const { data: existing } = await supabase
         .from('profiles')
         .select('id')
-        .eq('slug', updatedProfile.slug)
         .neq('id', profileId)
+        .eq('slug', updatedProfile.slug)
         .single();
         
     if (existing) {
@@ -63,7 +63,7 @@ export async function createProfile(newProfileData: Omit<Profile, 'id' | 'create
     // Check if slug is already in use
     const { data: existing } = await supabase
         .from('profiles')
-        select('id')
+        .select('id')
         .eq('slug', newProfileData.slug)
         .single();
 
