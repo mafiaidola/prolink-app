@@ -37,7 +37,12 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
         title: 'ProLink',
         subtitle: 'Your Ultimate Digital Profile Builder.',
         description: 'Create, manage, and share a stunning, professional bio link page that brings all your content together.',
-        features: [],
+        features: [
+            { "icon": "Palette", "title": "Stunning Customization", "description": "Choose from multiple themes, animated backgrounds, and custom colors to make your profile truly yours." },
+            { "icon": "SlidersHorizontal", "title": "Advanced Controls", "description": "Manage unlimited links, generate custom slugs, and get suggestions for your profile fields with our AI assistant." },
+            { "icon": "QrCode", "title": "Dynamic QR Codes", "description": "Create and customize QR codes with your logo and brand colors to bridge the physical and digital worlds." },
+            { "icon": "Languages", "title": "Bilingual Support", "description": "Full support for English (LTR) and Arabic (RTL) to reach a wider audience effortlessly." }
+        ],
         faviconUrl: '/favicon.ico',
     };
 
@@ -57,10 +62,10 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
     const features = Array.isArray(data.features) ? data.features : [];
 
     return {
-        title: data.title || '',
-        subtitle: data.subtitle || '',
-        description: data.description || '',
-        features: features,
-        faviconUrl: data.faviconUrl || '/favicon.ico',
+        title: data.title || fallbackContent.title,
+        subtitle: data.subtitle || fallbackContent.subtitle,
+        description: data.description || fallbackContent.description,
+        features: features.length > 0 ? features : fallbackContent.features,
+        faviconUrl: data.faviconUrl || fallbackContent.faviconUrl,
     };
 };
