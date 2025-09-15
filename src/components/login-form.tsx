@@ -34,7 +34,7 @@ export function LoginForm() {
         <CardDescription>Enter the admin password to manage profiles.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form dispatch={dispatch} className="space-y-4">
+        <form action={dispatch} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" name="password" type="password" required />
