@@ -17,19 +17,19 @@
         "id": "1",
         "title": "LinkedIn",
         "url": "https://linkedin.com",
-        "icon": "https://cdn.simpleicons.org/linkedin/white"
+        "icon": "https://cdn.simpleicons.org/linkedin?color=white"
       },
       {
         "id": "2",
         "title": "GitHub",
         "url": "https://github.com",
-        "icon": "https://cdn.simpleicons.org/github/white"
+        "icon": "https://cdn.simpleicons.org/github?color=white"
       },
       {
         "id": "3",
         "title": "Personal Website",
         "url": "https://example.com",
-        "icon": "https://cdn.simpleicons.org/googlechrome/white"
+        "icon": "https://cdn.simpleicons.org/googlechrome?color=white"
       }
     ]
   },
@@ -51,19 +51,19 @@
         "id": "1",
         "title": "LinkedIn",
         "url": "https://linkedin.com",
-        "icon": "https://cdn.simpleicons.org/linkedin/white"
+        "icon": "https://cdn.simpleicons.org/linkedin?color=white"
       },
       {
         "id": "2",
         "title": "GitHub",
         "url": "https://github.com",
-        "icon": "https://cdn.simpleicons.org/github/white"
+        "icon": "https://cdn.simpleicons.org/github?color=white"
       },
       {
         "id": "3",
         "title": "Twitter / X",
         "url": "https://x.com",
-        "icon": "https://cdn.simpleicons.org/x/white"
+        "icon": "https://cdn.simpleicons.org/x?color=white"
       }
     ]
   }
