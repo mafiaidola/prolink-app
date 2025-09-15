@@ -5,13 +5,18 @@ import { Button } from './ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 import { useState } from 'react';
 
-// Filter out non-component exports from lucide-react
-const iconNames = Object.keys(LucideIcons).filter(
-  (key) =>
-    typeof (LucideIcons as any)[key] === 'object' &&
-    (LucideIcons as any)[key].displayName &&
-    (LucideIcons as any)[key].displayName.includes('LucideIcon')
-);
+// A more robust way to filter for actual icon components
+const iconNames = Object.keys(LucideIcons).filter((key) => {
+    const exportValue = (LucideIcons as any)[key];
+    return (
+      typeof exportValue === 'object' &&
+      exportValue !== null &&
+      'render' in exportValue &&
+      typeof exportValue.render === 'function' &&
+      !key.includes('Provider')
+    );
+});
+
 
 export function IconPicker({ value, onChange }: { value?: string, onChange: (value: string) => void }) {
     const [open, setOpen] = useState(false);
