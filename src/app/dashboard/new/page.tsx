@@ -7,9 +7,9 @@ import Link from "next/link";
 export default function NewProfilePage() {
     const newProfile: Profile = {
         id: '', // Will be set on the server
-        slug: '',
-        name: '',
-        jobTitle: '',
+        slug: 'new-profile',
+        name: 'New Profile',
+        jobTitle: 'Job Title',
         bio: '',
         logoUrl: '',
         companyInfo: '',
