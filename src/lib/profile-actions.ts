@@ -4,16 +4,17 @@ import { revalidatePath } from 'next/cache';
 import type { Profile } from './types';
 import { createClient } from './supabase';
 
-const supabase = createClient();
-
 export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
+    const supabase = createClient();
+    if (!supabase) throw new Error("Supabase client is not initialized.");
+
     const profileId = updatedProfile.id;
     if (!profileId) {
         throw new Error("Profile ID is missing.");
     }
     
     // Check if slug is already in use by another profile
-    const { data: existing, error: existingError } = await supabase
+    const { data: existing } = await supabase
         .from('profiles')
         .select('id')
         .eq('slug', updatedProfile.slug)
@@ -24,9 +25,13 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
         throw new Error("Slug is already in use by another profile.");
     }
     
+    // The 'id' and 'createdAt' fields should not be part of the update payload
+    // as they are managed by the database.
+    const { id, createdAt, ...updateData } = updatedProfile;
+
     const { data, error } = await supabase
         .from('profiles')
-        .update(updatedProfile)
+        .update(updateData)
         .eq('id', profileId)
         .select()
         .single();
@@ -44,8 +49,11 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 };
 
 export async function createProfile(newProfileData: Omit<Profile, 'id' | 'createdAt'>): Promise<Profile> {
+    const supabase = createClient();
+    if (!supabase) throw new Error("Supabase client is not initialized.");
+
     // Check if slug is already in use
-    const { data: existing, error: existingError } = await supabase
+    const { data: existing } = await supabase
         .from('profiles')
         .select('id')
         .eq('slug', newProfileData.slug)
