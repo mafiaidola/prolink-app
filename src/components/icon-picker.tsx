@@ -2,17 +2,15 @@
 import * as LucideIcons from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
-import { ChevronsUpDown } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
+// Filter out non-component exports from lucide-react
 const iconNames = Object.keys(LucideIcons).filter(
   (key) =>
-    key !== 'createReactComponent' &&
-    key !== 'LucideProps' &&
-    key !== 'icons' &&
-    typeof (LucideIcons as any)[key] === 'object'
+    typeof (LucideIcons as any)[key] === 'object' &&
+    (LucideIcons as any)[key].displayName &&
+    (LucideIcons as any)[key].displayName.includes('LucideIcon')
 );
 
 export function IconPicker({ value, onChange }: { value?: string, onChange: (value: string) => void }) {
@@ -40,7 +38,7 @@ export function IconPicker({ value, onChange }: { value?: string, onChange: (val
                                         key={name}
                                         value={name}
                                         onSelect={(currentValue) => {
-                                            onChange(currentValue === value ? '' : currentValue);
+                                            onChange(currentValue === value ? '' : name);
                                             setOpen(false);
                                         }}
                                         className="flex items-center gap-2"
