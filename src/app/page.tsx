@@ -2,35 +2,19 @@ import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { CheckCircle, Palette, QrCode, SlidersHorizontal } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getHomepageContent } from '@/lib/data';
 
-export default function Home() {
+export default async function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
-
-  const features = [
-    {
-      icon: <Palette className="h-8 w-8 text-primary" />,
-      title: 'Stunning Customization',
-      description: 'Choose from multiple themes, animated backgrounds, and custom colors to make your profile truly yours.',
-    },
-    {
-      icon: <SlidersHorizontal className="h-8 w-8 text-primary" />,
-      title: 'Advanced Controls',
-      description: 'Manage unlimited links, generate custom slugs, and get suggestions for your profile fields with our AI assistant.',
-    },
-    {
-      icon: <QrCode className="h-8 w-8 text-primary" />,
-      title: 'Dynamic QR Codes',
-      description: 'Create and customize QR codes with your logo and brand colors to bridge the physical and digital worlds.',
-    },
-    {
-      icon: <CheckCircle className="h-8 w-8 text-primary" />,
-      title: 'Bilingual Support',
-      description: 'Full support for English (LTR) and Arabic (RTL) to reach a wider audience effortlessly.',
-    },
-  ];
+  const content = await getHomepageContent();
+  
+  const getIcon = (name: string) => {
+    const Icon = (LucideIcons as any)[name];
+    return Icon ? <Icon className="h-8 w-8 text-primary" /> : <LucideIcons.HelpCircle className="h-8 w-8 text-primary" />;
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,13 +36,13 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none font-headline bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                  ProLink
+                  {content.title}
                 </h1>
                 <p className="mx-auto max-w-[700px] text-foreground/80 md:text-xl">
-                  Your Ultimate Digital Profile Builder.
+                  {content.subtitle}
                 </p>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-lg">
-                  Create, manage, and share a stunning, professional bio link page that brings all your content together.
+                  {content.description}
                 </p>
               </div>
               <div className="space-x-4">
@@ -87,12 +71,12 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-4 mt-12">
-              {features.map((feature, index) => (
+              {content.features.map((feature, index) => (
                 <Card key={index} className="bg-card/50 hover:bg-card transition-all duration-300 transform hover:-translate-y-1">
                   <CardContent className="p-6">
                     <div className="grid gap-4">
                       <div className="flex items-center justify-center h-12 w-12 rounded-full bg-primary/10">
-                        {feature.icon}
+                        {getIcon(feature.icon)}
                       </div>
                       <div className="grid gap-1">
                         <h3 className="text-lg font-bold font-headline">{feature.title}</h3>

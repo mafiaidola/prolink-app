@@ -6,6 +6,7 @@ export type Link = {
 };
 
 export type Theme =
+  | 'default'
   | 'modern'
   | 'classic'
   | 'glass'
@@ -46,4 +47,17 @@ export type Profile = {
 export type SessionPayload = {
   isAdmin: boolean;
   expires: Date;
+};
+
+export type Feature = {
+  icon: string;
+  title: string;
+  description: string;
+};
+
+export type HomepageContent = {
+  title: string;
+  subtitle: string;
+  description: string;
+  features: Feature[];
 };

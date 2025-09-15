@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, LogOut } from 'lucide-react';
+import { Home, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logout } from '@/lib/actions';
 import { Icons } from '@/components/icons';
@@ -29,6 +29,7 @@ export default function DashboardLayout({
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
     { href: '/dashboard/profiles', label: 'Profiles', icon: User },
+    { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
@@ -52,7 +53,7 @@ export default function DashboardLayout({
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href}
+                  isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
                 >
                   <Link href={item.href}>

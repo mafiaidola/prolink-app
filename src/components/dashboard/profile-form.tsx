@@ -3,7 +3,7 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Profile } from '@/lib/types';
+import type { Profile, Theme, AnimatedBackground } from '@/lib/types';
 import {
   Form,
   FormControl,
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2 } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +33,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import React from 'react';
+import { IconPicker } from '../icon-picker';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { QRCodeDialog } from './qr-code-dialog';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -48,9 +51,14 @@ const profileSchema = z.object({
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
   links: z.array(linkSchema),
+  theme: z.string(),
+  animatedBackground: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+
+const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
+const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const router = useRouter();
@@ -58,7 +66,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const [isSaving, setIsSaving] = React.useState(false);
   const [isSuggesting, setIsSuggesting] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
-  
+  const [showQrCode, setShowQrCode] = React.useState(false);
+
   const isNewProfile = !profile.id;
 
   const form = useForm<ProfileFormValues>({
@@ -70,6 +79,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       bio: profile.bio,
       companyInfo: profile.companyInfo,
       links: profile.links,
+      theme: profile.theme,
+      animatedBackground: profile.animatedBackground,
     },
   });
 
@@ -83,14 +94,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profile, ...data });
+        const newProfile = await createProfile({ ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
         });
         router.push(`/dashboard/edit/${newProfile.slug}`);
       } else {
-        const updated: Profile = { ...profile, ...data };
+        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',
@@ -202,6 +213,58 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
           <Card>
             <CardHeader>
+                <CardTitle>Customization</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="theme"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Theme</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a theme" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {themes.map(theme => (
+                                        <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="animatedBackground"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Animated Background</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a background" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {backgrounds.map(bg => (
+                                        <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Links</CardTitle>
                 <Button type="button" variant="ghost" size="sm" onClick={handleSuggestFields} disabled={isSuggesting}>
@@ -213,6 +276,19 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardContent className="space-y-4">
               {fields.map((field, index) => (
                 <div key={field.id} className="flex gap-4 items-end">
+                  <FormField
+                      control={form.control}
+                      name={`links.${index}.icon`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Icon</FormLabel>
+                          <FormControl>
+                            <IconPicker value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   <FormField
                     control={form.control}
                     name={`links.${index}.title`}
@@ -256,7 +332,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               </Button>
             </CardContent>
           </Card>
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+             <Button type="button" variant="outline" onClick={() => setShowQrCode(true)} disabled={isNewProfile}>
+              <QrCode className="mr-2 h-4 w-4" />
+              Show QR Code
+            </Button>
             <Button type="submit" disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isNewProfile ? 'Create Profile' : 'Save Changes'}
@@ -280,6 +360,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+       <QRCodeDialog 
+        open={showQrCode} 
+        onOpenChange={setShowQrCode} 
+        slug={profile.slug}
+        name={profile.name}
+      />
     </>
   );
 }

@@ -3,6 +3,9 @@
 import { createSession, deleteSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { updateHomepageContent } from './data';
+import type { HomepageContent } from './types';
+import { revalidatePath } from 'next/cache';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MoEP1337';
 
@@ -37,4 +40,63 @@ export async function login(prevState: LoginState, formData: FormData): Promise<
 
 export async function logout() {
   await deleteSession();
+}
+
+const featureSchema = z.object({
+    icon: z.string().min(1, "Icon is required."),
+    title: z.string().min(1, "Title is required."),
+    description: z.string().min(1, "Description is required."),
+});
+
+const homepageContentSchema = z.object({
+    title: z.string().min(1, "Title is required."),
+    subtitle: z.string().min(1, "Subtitle is required."),
+    description: z.string().min(1, "Description is required."),
+    features: z.array(featureSchema),
+});
+
+
+type SettingsState = {
+    error?: string;
+    success?: boolean;
+    message?: string;
+};
+
+export async function saveSettings(prevState: SettingsState, formData: FormData): Promise<SettingsState> {
+    
+    const features = Array.from(formData.keys())
+        .filter(key => key.startsWith('features.'))
+        .reduce((acc, key) => {
+            const [_, index, field] = key.match(/features\.(\d+)\.(.*)/) || [];
+            if(index && field) {
+                const idx = parseInt(index, 10);
+                if(!acc[idx]) acc[idx] = {} as any;
+                acc[idx][field] = formData.get(key);
+            }
+            return acc;
+        }, [] as any[]);
+
+    const data: HomepageContent = {
+        title: formData.get('title') as string,
+        subtitle: formData.get('subtitle') as string,
+        description: formData.get('description') as string,
+        features: features,
+    }
+
+    const validatedFields = homepageContentSchema.safeParse(data);
+
+    if (!validatedFields.success) {
+        console.error(validatedFields.error.flatten().fieldErrors);
+        return {
+            error: "Failed to validate settings.",
+        };
+    }
+    
+    try {
+        await updateHomepageContent(validatedFields.data);
+        revalidatePath('/');
+        return { success: true, message: "Settings saved successfully!" };
+    } catch (error) {
+        return { error: "Failed to save settings." };
+    }
 }

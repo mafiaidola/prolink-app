@@ -1,4 +1,4 @@
-import type { Profile } from '@/lib/types';
+import type { Profile, HomepageContent, Feature } from '@/lib/types';
 
 export const mockProfiles: Profile[] = [
   {
@@ -17,7 +17,7 @@ export const mockProfiles: Profile[] = [
       { id: '2', title: 'GitHub', url: 'https://github.com', icon: 'Github' },
       { id: '3', title: 'Personal Website', url: 'https://example.com', icon: 'Globe' },
       { id: '4', title: 'Contact Me', url: 'mailto:nour@example.com', icon: 'Mail' },
-      { id: '5', title: 'Portfolio', url: 'https://example.com/portfolio', icon: 'BookMarked' },
+      { id: '5', title: 'Portfolio', url: 'https://example.com/portfolio', icon: 'Book' },
     ],
   },
   {
@@ -39,9 +39,41 @@ export const mockProfiles: Profile[] = [
   },
 ];
 
+const defaultFeatures: Feature[] = [
+  {
+    icon: 'Palette',
+    title: 'Stunning Customization',
+    description: 'Choose from multiple themes, animated backgrounds, and custom colors to make your profile truly yours.',
+  },
+  {
+    icon: 'SlidersHorizontal',
+    title: 'Advanced Controls',
+    description: 'Manage unlimited links, generate custom slugs, and get suggestions for your profile fields with our AI assistant.',
+  },
+  {
+    icon: 'QrCode',
+    title: 'Dynamic QR Codes',
+    description: 'Create and customize QR codes with your logo and brand colors to bridge the physical and digital worlds.',
+  },
+  {
+    icon: 'Languages',
+    title: 'Bilingual Support',
+    description: 'Full support for English (LTR) and Arabic (RTL) to reach a wider audience effortlessly.',
+  },
+];
+
+const defaultHomepageContent: HomepageContent = {
+  title: 'ProLink',
+  subtitle: 'Your Ultimate Digital Profile Builder.',
+  description: 'Create, manage, and share a stunning, professional bio link page that brings all your content together.',
+  features: defaultFeatures,
+};
+
 // This is a temporary in-memory store.
 // In a real app, this would be a database.
 let profilesStore: Profile[] = [...mockProfiles];
+let homepageContentStore: HomepageContent = defaultHomepageContent;
+
 
 export const getProfiles = async (): Promise<Profile[]> => {
     return Promise.resolve(profilesStore);
@@ -81,4 +113,13 @@ export const createProfile = async (newProfileData: Omit<Profile, 'id'>): Promis
 
     profilesStore.push(newProfile);
     return Promise.resolve(newProfile);
+}
+
+export const getHomepageContent = async (): Promise<HomepageContent> => {
+  return Promise.resolve(homepageContentStore);
+};
+
+export const updateHomepageContent = async (content: HomepageContent): Promise<HomepageContent> => {
+  homepageContentStore = content;
+  return Promise.resolve(homepageContentStore);
 }

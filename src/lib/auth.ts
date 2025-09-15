@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import type { SessionPayload } from '@/lib/types';
 import { createCipheriv, createDecipheriv, scryptSync } from 'crypto';
-import {redirect} from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 const SECRET_KEY = process.env.SESSION_SECRET_KEY || 'a-super-secret-key-that-is-at-least-32-bytes-long';
 const password = 'password-for-scrypt';
