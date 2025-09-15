@@ -36,6 +36,7 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
 import { Switch } from '@/components/ui/switch';
+import { ImageUpload } from './image-upload';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -49,8 +50,8 @@ const profileSchema = z.object({
   slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
-  logoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  coverUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  logoUrl: z.string().optional().or(z.literal('')),
+  coverUrl: z.string().optional().or(z.literal('')),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
   links: z.array(linkSchema),
   theme: z.string(),
@@ -159,12 +160,17 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                   name="logoUrl"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Profile Picture URL</FormLabel>
-                      <FormControl>
-                          <Input placeholder="https://example.com/logo.png" {...field} />
-                      </FormControl>
-                      <FormDescription>Recommended size: 200x200px</FormDescription>
-                      <FormMessage />
+                          <FormLabel>Profile Picture</FormLabel>
+                          <FormControl>
+                            <ImageUpload 
+                                value={field.value}
+                                onChange={field.onChange}
+                                recommendedSize="200x200px"
+                                isAvatar
+                            />
+                          </FormControl>
+                          <FormDescription>Upload a profile picture. Recommended size: 200x200px</FormDescription>
+                          <FormMessage />
                       </FormItem>
                   )}
                 />
@@ -247,11 +253,15 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     name="coverUrl"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Cover Photo URL</FormLabel>
+                        <FormLabel>Cover Photo</FormLabel>
                         <FormControl>
-                           <Input placeholder="https://example.com/cover.png" {...field} />
+                           <ImageUpload 
+                             value={field.value}
+                             onChange={field.onChange}
+                             recommendedSize="800x300px"
+                           />
                         </FormControl>
-                         <FormDescription>Recommended size: 800x300px</FormDescription>
+                         <FormDescription>Upload a cover photo. Recommended size: 800x300px</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -324,48 +334,46 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                       )}
                   />
                 </div>
-                 <div className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="isPublished"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Published</FormLabel>
-                                    <FormDescription>
-                                        Enable this to make the profile page publicly accessible.
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="isVerified"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Verified Profile</FormLabel>
-                                    <FormDescription>
-                                        Enable this to show a verified badge on the profile.
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                 </div>
+                <FormField
+                    control={form.control}
+                    name="isPublished"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                                <FormLabel>Published</FormLabel>
+                                <FormDescription>
+                                    Enable this to make the profile page publicly accessible.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="isVerified"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                                <FormLabel>Verified Profile</FormLabel>
+                                <FormDescription>
+                                    Enable this to show a verified badge on the profile.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
             </CardContent>
           </Card>
 
@@ -417,7 +425,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                             <FormItem className="flex-1">
                                 <FormLabel>Icon URL</FormLabel>
                                 <FormControl>
-                                <Input placeholder="https://example.com/icon.svg" {...field} />
+                                <Input placeholder="https://cdn.simpleicons.org/..." {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
