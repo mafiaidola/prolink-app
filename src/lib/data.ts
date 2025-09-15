@@ -15,11 +15,9 @@ export const mockProfiles: Profile[] = [
     layout: 'default',
     isPublished: true,
     links: [
-      { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin' },
-      { id: '2', title: 'GitHub', url: 'https://github.com', icon: 'Github' },
-      { id: '3', title: 'Personal Website', url: 'https://example.com', icon: 'Globe' },
-      { id: '4', title: 'Contact Me', url: 'mailto:nour@example.com', icon: 'Mail' },
-      { id: '5', title: 'Portfolio', url: 'https://example.com/portfolio', icon: 'Book' },
+      { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'https://cdn.simpleicons.org/linkedin/white' },
+      { id: '2', title: 'GitHub', url: 'https://github.com', icon: 'https://cdn.simpleicons.org/github/white' },
+      { id: '3', title: 'Personal Website', url: 'https://example.com', icon: 'https://cdn.simpleicons.org/googlechrome/white' },
     ],
   },
   {
@@ -36,9 +34,9 @@ export const mockProfiles: Profile[] = [
     layout: 'stacked',
     isPublished: true,
     links: [
-        { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin' },
-        { id: '2', title: 'GitHub', url: 'https://github.com', icon: 'Github' },
-        { id: '3', title: 'Twitter / X', url: 'https://x.com', icon: 'Twitter' },
+        { id: '1', title: 'LinkedIn', url: 'https://linkedin.com', icon: 'https://cdn.simpleicons.org/linkedin/white' },
+        { id: '2', title: 'GitHub', url: 'https://github.com', icon: 'https://cdn.simpleicons.org/github/white' },
+        { id: '3', title: 'Twitter / X', url: 'https://x.com', icon: 'https://cdn.simpleicons.org/x/white' },
     ],
   },
 ];
@@ -112,9 +110,9 @@ export const createProfile = async (newProfileData: Omit<Profile, 'id'>): Promis
 
     const newProfile: Profile = {
         ...newProfileData,
-        id: new Date().toISOString(), // Generate a unique ID
-        logoUrl: `https://picsum.photos/seed/${newProfileData.slug}/200/200`,
-        coverUrl: `https://picsum.photos/seed/${newProfileData.slug}-cover/800/300`,
+        id: (Date.now() + Math.random()).toString(), // Generate a more unique ID
+        logoUrl: newProfileData.logoUrl || `https://picsum.photos/seed/${newProfileData.slug}/200/200`,
+        coverUrl: newProfileData.coverUrl || `https://picsum.photos/seed/${newProfileData.slug}-cover/800/300`,
     };
 
     profilesStore.push(newProfile);

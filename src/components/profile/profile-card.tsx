@@ -90,19 +90,28 @@ const themeStyles = {
     linkButton: 'bg-white/50 hover:bg-white/80 text-gray-800'
   },
   tech: {
-    card: 'bg-blue-900/95 border-blue-700 text-white',
+    card: 'bg-gray-900/90 text-gray-100 border-teal-500/30 font-mono',
     button: 'secondary',
-    separator: 'bg-blue-700',
-    cardDescription: 'text-blue-200',
+    separator: 'bg-teal-500/20',
+    cardDescription: 'text-gray-400',
     cardTitle: 'text-white',
-    linkButton: 'bg-blue-800 hover:bg-blue-700 text-white'
+    linkButton: 'bg-gray-800/80 hover:bg-gray-700/80 text-gray-100'
   },
 };
 
-const getIcon = (name?: string) => {
-    if (!name) return <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
-    const Icon = (LucideIcons as any)[name];
-    return Icon ? <Icon className="h-5 w-5 rtl:ml-3 ltr:mr-3 group-hover:animate-pulse" /> : <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
+const getIcon = (iconUrl?: string) => {
+    if (iconUrl) {
+      return (
+        <Image
+          src={iconUrl}
+          alt="icon"
+          width={20}
+          height={20}
+          className="rtl:ml-3 ltr:mr-3 group-hover:animate-pulse"
+        />
+      );
+    }
+    return <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
 };
 
 
@@ -202,8 +211,8 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
 );
 
 const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
-    <div className="w-full max-w-md mx-auto z-10 flex flex-col items-center justify-center min-h-full text-center">
-        <Card className={cn("w-full transition-all duration-300 overflow-hidden !bg-transparent !shadow-none !border-none", selectedTheme.card)}>
+    <div className="w-full max-w-md mx-auto z-10 flex flex-col items-center justify-center min-h-full text-center p-4">
+        <Card className={cn("w-full transition-all duration-300 !bg-transparent !shadow-none !border-none", selectedTheme.card)}>
             <CardHeader className="items-center text-center pt-6">
                 <Avatar className={cn("w-28 h-28 mb-4 border-4 shadow-lg", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
                     <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
@@ -215,9 +224,9 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
             </CardHeader>
             <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                 {profile.links && profile.links.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-4 mt-4">
+                    <div className="flex flex-wrap justify-center gap-3 mt-4">
                         {profile.links.map((link) => (
-                            <Button
+                             <Button
                                 key={link.id}
                                 variant={'ghost'}
                                 size="icon"
@@ -226,7 +235,7 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
                                 title={link.title}
                             >
                                 <Link href={link.url} target="_blank" rel="noopener noreferrer">
-                                    {getIcon(link.icon)}
+                                   {getIcon(link.icon)}
                                 </Link>
                             </Button>
                         ))}

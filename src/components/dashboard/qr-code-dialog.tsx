@@ -14,13 +14,14 @@ import { Loader2, Download } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import { generateQrCode, GenerateQrCodeInput } from '@/ai/flows/generate-qr-code';
 import { QRCodeCustomizer, QrCodeCustomization } from './qr-code-customizer';
-import { Separator } from '../ui/separator';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profile: Profile;
 };
+
+const OFFICIAL_DOMAIN = "bio.ep-eg.com";
 
 export function QRCodeDialog({ open, onOpenChange, profile }: Props) {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -35,18 +36,21 @@ export function QRCodeDialog({ open, onOpenChange, profile }: Props) {
   });
   
   const anchorRef = useRef<HTMLAnchorElement>(null);
-  const { slug, name } = profile;
 
   useEffect(() => {
-    if (open && slug) {
+    if (open && profile?.slug) {
       setIsLoading(true);
       setError(null);
       
-      const profileUrl = `${window.location.origin}/${slug}`;
+      const profileUrl = `https://${OFFICIAL_DOMAIN}/${profile.slug}`;
       const input: GenerateQrCodeInput = {
         text: profileUrl,
         foregroundColor: customization.foregroundColor,
         backgroundColor: customization.backgroundColor,
+        gradient: customization.gradient,
+        qrStyle: customization.qrStyle,
+        eyeStyle: customization.eyeStyle,
+        logoUrl: customization.logoUrl,
       };
 
       generateQrCode(input)
@@ -61,23 +65,26 @@ export function QRCodeDialog({ open, onOpenChange, profile }: Props) {
           setIsLoading(false);
         });
     }
-  }, [open, slug, customization]);
+  }, [open, profile, customization]);
 
   const handleDownload = () => {
-    if (anchorRef.current) {
+    if (anchorRef.current && qrCodeUrl) {
         anchorRef.current.href = qrCodeUrl;
+        anchorRef.current.download = `${profile.slug}-qrcode.png`;
         anchorRef.current.click();
     }
   };
+
+  if (!profile) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col">
             <DialogHeader>
-                <DialogTitle>QR Code for {name}</DialogTitle>
+                <DialogTitle>QR Code for {profile.name}</DialogTitle>
                 <DialogDescription>
-                    Customize and download the QR code for your profile.
+                    Customize and download the QR code for your profile. It will link to `https://{OFFICIAL_DOMAIN}/{profile.slug}`
                 </DialogDescription>
             </DialogHeader>
             <div className="flex-grow flex justify-center items-center p-4 min-h-[320px]">
@@ -88,7 +95,7 @@ export function QRCodeDialog({ open, onOpenChange, profile }: Props) {
                 ) : error ? (
                     <p className="text-destructive text-center">{error}</p>
                 ) : qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt={`QR Code for ${name}`} className="w-64 h-64 rounded-lg shadow-md" />
+                    <img src={qrCodeUrl} alt={`QR Code for ${profile.name}`} className="w-64 h-64 rounded-lg shadow-md" />
                 ) : (
                     <p className="text-destructive">Failed to load QR code.</p>
                 )}
@@ -96,8 +103,7 @@ export function QRCodeDialog({ open, onOpenChange, profile }: Props) {
             <DialogFooter className="mt-auto">
                 <a
                     ref={anchorRef}
-                    href={qrCodeUrl}
-                    download={`${slug}-qrcode.png`}
+                    href="#"
                     className="hidden"
                 />
                 <Button onClick={handleDownload} disabled={isLoading || !qrCodeUrl} className="w-full">

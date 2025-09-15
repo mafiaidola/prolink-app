@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode, Link as LinkIcon } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -35,8 +35,6 @@ import {
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
-import { ImageUpload } from './image-upload';
-
 
 const linkSchema = z.object({
   id: z.string(),
@@ -50,8 +48,8 @@ const profileSchema = z.object({
   slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
   bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
-  logoUrl: z.string().optional(),
-  coverUrl: z.string().optional(),
+  logoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  coverUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
   links: z.array(linkSchema),
   theme: z.string(),
@@ -81,11 +79,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       name: profile.name,
       slug: profile.slug,
       jobTitle: profile.jobTitle,
-      bio: profile.bio,
-      logoUrl: profile.logoUrl,
-      coverUrl: profile.coverUrl,
-      companyInfo: profile.companyInfo,
-      links: profile.links,
+      bio: profile.bio || '',
+      logoUrl: profile.logoUrl || '',
+      coverUrl: profile.coverUrl || '',
+      companyInfo: profile.companyInfo || '',
+      links: profile.links || [],
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
@@ -150,25 +148,20 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               <CardTitle>Core Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <FormField
+               <FormField
                   control={form.control}
                   name="logoUrl"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Profile Picture</FormLabel>
+                      <FormLabel>Profile Picture URL</FormLabel>
                       <FormControl>
-                          <ImageUpload 
-                            value={field.value}
-                            onChange={field.onChange}
-                            recommendedSize="200x200px"
-                            isAvatar
-                          />
+                          <Input placeholder="https://example.com/logo.png" {...field} />
                       </FormControl>
                       <FormDescription>Recommended size: 200x200px</FormDescription>
                       <FormMessage />
                       </FormItem>
                   )}
-                  />
+                />
               <FormField
                 control={form.control}
                 name="name"
@@ -248,13 +241,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     name="coverUrl"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Cover Photo</FormLabel>
+                        <FormLabel>Cover Photo URL</FormLabel>
                         <FormControl>
-                            <ImageUpload
-                                value={field.value}
-                                onChange={field.onChange}
-                                recommendedSize="800x300px"
-                            />
+                           <Input placeholder="https://example.com/cover.png" {...field} />
                         </FormControl>
                          <FormDescription>Recommended size: 800x300px</FormDescription>
                         <FormMessage />
@@ -294,7 +283,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a background" />
-                                      </SelectTrigger>
+                                      </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                       {backgrounds.map(bg => (
@@ -316,7 +305,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Select a layout" />
-                                      </SelectTrigger>
+                                      </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                       {layouts.map(layout => (
@@ -345,15 +334,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardContent className="space-y-4">
               {fields.map((field, index) => {
                  return (
-                    <div key={field.id} className="flex gap-4 items-end">
-                      <div className="pt-8">
-                         <LinkIcon className="h-5 w-5" />
-                      </div>
+                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                       <FormField
                         control={form.control}
                         name={`links.${index}.title`}
                         render={({ field }) => (
-                          <FormItem className="flex-1">
+                          <FormItem>
                             <FormLabel>Title</FormLabel>
                             <FormControl>
                               <Input placeholder="LinkedIn" {...field} />
@@ -366,7 +352,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                         control={form.control}
                         name={`links.${index}.url`}
                         render={({ field }) => (
-                          <FormItem className="flex-1">
+                          <FormItem>
                             <FormLabel>URL</FormLabel>
                             <FormControl>
                               <Input placeholder="https://linkedin.com/in/..." {...field} />
@@ -375,9 +361,24 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                           </FormItem>
                         )}
                       />
-                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                        <Trash className="h-4 w-4" />
-                      </Button>
+                       <div className="flex gap-4 items-end">
+                         <FormField
+                            control={form.control}
+                            name={`links.${index}.icon`}
+                            render={({ field }) => (
+                            <FormItem className="flex-1">
+                                <FormLabel>Icon URL</FormLabel>
+                                <FormControl>
+                                <Input placeholder="https://example.com/icon.svg" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                         />
+                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                            <Trash className="h-4 w-4" />
+                        </Button>
+                       </div>
                     </div>
                  );
               })}
@@ -386,7 +387,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 variant="outline"
                 size="sm"
                 className="mt-2"
-                onClick={() => append({ id: new Date().toISOString(), title: '', url: '', icon: 'Link' })}
+                onClick={() => append({ id: new Date().toISOString(), title: '', url: '', icon: '' })}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Link

@@ -16,6 +16,7 @@ const GenerateQrCodeInputSchema = z.object({
   text: z.string().describe('The text or URL to encode in the QR code.'),
   foregroundColor: z.string().optional().default('#000000').describe('The foreground color of the QR code (hex).'),
   backgroundColor: z.string().optional().default('#ffffff').describe('The background color of the QR code (hex).'),
+  // The following fields are for future extension and not fully supported by the 'qrcode' library out of the box.
   gradient: z.boolean().optional().default(false).describe('Whether to apply a gradient.'),
   logoUrl: z.string().optional().describe('URL of a logo to embed in the QR code.'),
   qrStyle: z.enum(['squares', 'dots']).optional().default('squares').describe('The style of the QR code modules.'),
@@ -38,8 +39,10 @@ const generateQrCodeFlow = ai.defineFlow(
     outputSchema: GenerateQrCodeOutputSchema,
   },
   async (input) => {
-      const options: QRCode.QRCodeToDataURLOptions = {
-        errorCorrectionLevel: 'H', // High correction level for logo embedding
+    // The 'qrcode' library has limited styling options.
+    // We will use the primary color options and keep the schema for future enhancements.
+    const options: QRCode.QRCodeToDataURLOptions = {
+        errorCorrectionLevel: 'H', // High correction level for better readability, especially if a logo is overlaid manually.
         margin: 2,
         width: 300,
         color: {
@@ -48,17 +51,14 @@ const generateQrCodeFlow = ai.defineFlow(
         },
     };
     
+    // The `qrcode` library does not natively support gradients, custom module/eye styles, or logo embedding.
+    // These would require a more advanced library or manual canvas manipulation.
+    // For now, we generate a solid-color QR code.
     const qrCodeDataUrl = await QRCode.toDataURL(input.text, options);
-    
-    // NOTE: The 'qrcode' library does not support advanced customizations like gradients,
-    // logo embedding, or different dot/eye styles out-of-the-box.
-    // The schema includes these for future enhancement with a more advanced library.
-    // For now, we return the basic, colored QR code.
     
     return { qrCodeDataUrl };
   }
 );
-
 
 export async function generateQrCode(input: GenerateQrCodeInput): Promise<GenerateQrCodeOutput> {
     return generateQrCodeFlow(input);
