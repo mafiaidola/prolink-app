@@ -35,6 +35,7 @@ import {
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
+import { Switch } from '@/components/ui/switch';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -55,6 +56,7 @@ const profileSchema = z.object({
   theme: z.string(),
   animatedBackground: z.string(),
   layout: z.string(),
+  isVerified: z.boolean(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -87,6 +89,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
+      isVerified: profile.isVerified,
     },
   });
 
@@ -100,7 +103,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout });
+        const newProfile = await createProfile({ ...profile, ...data, isVerified: data.isVerified, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -108,7 +111,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         router.push(`/dashboard/edit/${newProfile.slug}`);
         router.refresh();
       } else {
-        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
+        const updated: Profile = { ...profile, ...data, isVerified: data.isVerified, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',
@@ -319,6 +322,26 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                       )}
                   />
                 </div>
+                 <FormField
+                    control={form.control}
+                    name="isVerified"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                                <FormLabel>Verified Profile</FormLabel>
+                                <FormDescription>
+                                    Enable this to show a verified badge on the profile.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
             </CardContent>
           </Card>
 

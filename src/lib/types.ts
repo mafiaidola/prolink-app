@@ -48,6 +48,7 @@ export type Profile = {
   animatedBackground: AnimatedBackground;
   layout: ProfileLayout; // New field for layout
   isPublished: boolean;
+  isVerified: boolean;
   links: Link[];
 };
 

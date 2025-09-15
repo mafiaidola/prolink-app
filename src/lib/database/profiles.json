@@ -9,9 +9,10 @@
     "coverUrl": "https://picsum.photos/seed/nour-cover/800/300",
     "companyInfo": "At Innovatech Solutions, we drive growth through cutting-edge digital strategies and data-driven results.",
     "theme": "retro",
-    "animatedBackground": "aurora",
-    "layout": "stacked",
+    "animatedBackground": "particles",
+    "layout": "default",
     "isPublished": true,
+    "isVerified": true,
     "links": [
       {
         "id": "1",
@@ -46,6 +47,7 @@
     "animatedBackground": "stars",
     "layout": "stacked",
     "isPublished": true,
+    "isVerified": false,
     "links": [
       {
         "id": "1",

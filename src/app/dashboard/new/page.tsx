@@ -18,6 +18,7 @@ export default function NewProfilePage() {
         animatedBackground: 'none',
         layout: 'default',
         isPublished: false,
+        isVerified: false,
         links: [],
     };
 

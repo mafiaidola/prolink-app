@@ -11,6 +11,7 @@ import { useApp } from '@/components/providers';
 import { cn } from '@/lib/utils';
 import { translations } from '@/lib/translations';
 import Image from 'next/image';
+import { BadgeCheck } from 'lucide-react';
 
 const themeStyles = {
   default: {
@@ -127,7 +128,10 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                 <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
                 <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+              {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
+            </div>
             <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
             <p className={cn("text-sm pt-2", selectedTheme.cardDescription)}>{profile.bio}</p>
         </CardHeader>
@@ -174,7 +178,10 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                     <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
                     <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                  {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
+                </div>
                 <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
                 <p className={cn("text-sm pt-2 max-w-xs", selectedTheme.cardDescription)}>{profile.bio}</p>
             </div>
@@ -218,7 +225,10 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
                     <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
                     <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <CardTitle className={cn("text-4xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className={cn("text-4xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                  {profile.isVerified && <BadgeCheck className="w-7 h-7 text-blue-500" />}
+                </div>
                 <CardDescription className={cn("text-xl", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
                 <p className={cn("text-md pt-2 max-w-sm", selectedTheme.cardDescription)}>{profile.bio}</p>
             </CardHeader>
