@@ -433,8 +433,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
        <QRCodeDialog 
         open={showQrCode} 
         onOpenChange={setShowQrCode} 
-        slug={profile.slug}
-        name={profile.name}
+        profile={profile}
       />
     </>
   );
