@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, ArrowUp, ArrowDown } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +36,9 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
 import { Switch } from '@/components/ui/switch';
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableItem } from './sortable-item';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -113,6 +116,16 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     control: form.control,
     name: 'links',
   });
+  
+  function handleDragEnd(event: DragEndEvent) {
+    const {active, over} = event;
+    
+    if (active.id !== over?.id) {
+        const oldIndex = contentFields.findIndex((field) => field.id === active.id);
+        const newIndex = contentFields.findIndex((field) => field.id === over!.id);
+        moveContent(oldIndex, newIndex);
+    }
+  }
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
@@ -249,126 +262,132 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <CardHeader>
                 <CardTitle>Content Blocks</CardTitle>
                 <FormDescription>
-                    Add and arrange blocks of content to build your profile page.
+                    Add and arrange blocks of content to build your profile page. Drag and drop to reorder.
                 </FormDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-4">
-                    {contentFields.map((field, index) => (
-                        <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                            <div className="absolute top-2 right-2 flex flex-col gap-1">
-                                <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveContent(index, index - 1)} disabled={index === 0}>
-                                    <ArrowUp className="h-4 w-4" />
-                                </Button>
-                                <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveContent(index, index + 1)} disabled={index === contentFields.length - 1}>
-                                    <ArrowDown className="h-4 w-4" />
-                                </Button>
-                                <Button type="button" size="icon" variant="destructive-ghost" className="h-7 w-7" onClick={() => removeContent(index)}>
-                                    <Trash className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            {field.type === 'heading' && (
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                                    <FormField
-                                        control={form.control}
-                                        name={`content.${index}.text`}
-                                        render={({ field }) => (
-                                            <FormItem className="col-span-3">
-                                                <FormLabel>Heading Text</FormLabel>
-                                                <FormControl><Input {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
+                    <DndContext 
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext 
+                            items={contentFields}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {contentFields.map((field, index) => (
+                                <SortableItem key={field.id} id={field.id}>
+                                    <div className="p-4 border rounded-lg space-y-4 relative bg-background">
+                                        <div className="absolute top-2 right-2 flex items-center">
+                                            <Button type="button" size="icon" variant="destructive-ghost" className="h-7 w-7" onClick={() => removeContent(index)}>
+                                                <Trash className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        {field.type === 'heading' && (
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.text`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="col-span-3">
+                                                            <FormLabel>Heading Text</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.level`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Level</FormLabel>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    <SelectItem value="h1">H1</SelectItem>
+                                                                    <SelectItem value="h2">H2</SelectItem>
+                                                                    <SelectItem value="h3">H3</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
                                         )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`content.${index}.level`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Level</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="h1">H1</SelectItem>
-                                                        <SelectItem value="h2">H2</SelectItem>
-                                                        <SelectItem value="h3">H3</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
+                                        {field.type === 'text' && (
+                                            <FormField
+                                                control={form.control}
+                                                name={`content.${index}.text`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Paragraph Text</FormLabel>
+                                                        <FormControl><Textarea {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
                                         )}
-                                    />
-                                </div>
-                            )}
-                            {field.type === 'text' && (
-                                <FormField
-                                    control={form.control}
-                                    name={`content.${index}.text`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Paragraph Text</FormLabel>
-                                            <FormControl><Textarea {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
-                            {field.type === 'image' && (
-                                <div className="space-y-4">
-                                    <FormField
-                                        control={form.control}
-                                        name={`content.${index}.url`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Image URL</FormLabel>
-                                                <FormControl><Input placeholder="https://example.com/image.png" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
+                                        {field.type === 'image' && (
+                                            <div className="space-y-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.url`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Image URL</FormLabel>
+                                                            <FormControl><Input placeholder="https://example.com/image.png" {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.alt`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Alt Text (for accessibility)</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
                                         )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`content.${index}.alt`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Alt Text (for accessibility)</FormLabel>
-                                                <FormControl><Input {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
+                                        {field.type === 'quote' && (
+                                            <div className="space-y-4">
+                                                 <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.text`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Quote Text</FormLabel>
+                                                            <FormControl><Textarea {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.author`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Author (optional)</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
                                         )}
-                                    />
-                                </div>
-                            )}
-                            {field.type === 'quote' && (
-                                <div className="space-y-4">
-                                     <FormField
-                                        control={form.control}
-                                        name={`content.${index}.text`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Quote Text</FormLabel>
-                                                <FormControl><Textarea {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`content.${index}.author`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Author (optional)</FormLabel>
-                                                <FormControl><Input {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                    </div>
+                                </SortableItem>
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 </div>
                 <div className="flex flex-wrap gap-2 pt-4">
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('heading')}><Type className="mr-2 h-4 w-4" /> Add Heading</Button>

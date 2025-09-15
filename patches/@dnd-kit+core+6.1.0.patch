@@ -1,0 +1,13 @@
+diff --git a/node_modules/@dnd-kit/core/dist/core.esm.js b/node_modules/@dnd-kit/core/dist/core.esm.js
+index 287415f..f91a967 100644
+--- a/node_modules/@dnd-kit/core/dist/core.esm.js
++++ b/node_modules/@dnd-kit/core/dist/core.esm.js
+@@ -1026,7 +1026,7 @@
+   }, [accessibility, announce, screenReaderInstructions]);
+   const provided = useMemo(() => ({
+     activator: activatorEvent,
+-    activators,
++    activators: activators.current,
+     active,
+     activeNode,
+     activeRect,
