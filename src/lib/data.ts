@@ -7,15 +7,18 @@ const fallbackProfiles: Profile[] = [
         "slug": "nour-al-huda",
         "name": "Nour Al-Huda",
         "jobTitle": "Digital Marketing Specialist",
-        "bio": "A passionate digital marketer with 5 years of experience in SEO, SMM, and content strategy. Helping businesses grow online.",
         "logoUrl": "https://picsum.photos/seed/nour-al-huda/200/200",
         "coverUrl": "https://picsum.photos/seed/nour-al-huda-cover/800/300",
-        "companyInfo": "Working at Creative Solutions Inc. We provide cutting-edge marketing solutions for startups and enterprises worldwide.",
         "theme": "modern",
         "animatedBackground": "particles",
         "layout": "default",
         "isPublished": true,
         "isVerified": true,
+        "content": [
+            { "id": "bio-1", "type": "text", "text": "A passionate digital marketer with 5 years of experience in SEO, SMM, and content strategy. Helping businesses grow online." },
+            { "id": "work-1", "type": "heading", "level": "h2", "text": "My Work" },
+            { "id": "work-2", "type": "text", "text": "Working at Creative Solutions Inc. We provide cutting-edge marketing solutions for startups and enterprises worldwide." }
+        ],
         "links": [{"id": "linkedin", "title": "LinkedIn Profile", "url": "https://linkedin.com/in/nour-al-huda", "icon": "https://cdn.simpleicons.org/linkedin/white"}, {"id": "twitter", "title": "Twitter / X", "url": "https://x.com/nour", "icon": "https://cdn.simpleicons.org/x/white"}, {"id": "website", "title": "Personal Website", "url": "https://nour.dev", "icon": "https://cdn.simpleicons.org/website/white"}]
     },
     {
@@ -23,15 +26,17 @@ const fallbackProfiles: Profile[] = [
         "slug": "ahmed-khan",
         "name": "Ahmed Khan",
         "jobTitle": "Senior Frontend Developer",
-        "bio": "Building beautiful and performant user interfaces with React and Next.js. Lover of clean code and good coffee.",
         "logoUrl": "https://picsum.photos/seed/ahmed-khan/200/200",
         "coverUrl": "https://picsum.photos/seed/ahmed-khan-cover/800/300",
-        "companyInfo": "Lead Developer at Tech Innovators. We build scalable web applications for the future.",
         "theme": "tech",
         "animatedBackground": "lines",
         "layout": "stacked",
         "isPublished": true,
         "isVerified": false,
+        "content": [
+            { "id": "bio-2", "type": "text", "text": "Building beautiful and performant user interfaces with React and Next.js. Lover of clean code and good coffee." },
+            { "id": "quote-1", "type": "quote", "text": "Code is like humor. When you have to explain it, it’s bad.", "author": "Cory House" }
+        ],
         "links": [{"id": "github", "title": "GitHub Profile", "url": "https://github.com/ahmed-khan", "icon": "https://cdn.simpleicons.org/github/white"}, {"id": "portfolio", "title": "Portfolio", "url": "https://ahmed-khan-portfolio.com", "icon": "https://cdn.simpleicons.org/briefcase/white"}]
     }
 ];

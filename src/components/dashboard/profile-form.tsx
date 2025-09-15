@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, ArrowUp, ArrowDown } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -44,14 +44,24 @@ const linkSchema = z.object({
   icon: z.string().optional(),
 });
 
+const contentBlockSchema = z.object({
+    id: z.string(),
+    type: z.enum(['heading', 'text', 'image', 'quote']),
+    text: z.string().optional(),
+    level: z.enum(['h1', 'h2', 'h3']).optional(),
+    url: z.string().optional(),
+    alt: z.string().optional(),
+    author: z.string().optional(),
+});
+
+
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
   jobTitle: z.string().min(2, 'Job title is required'),
-  bio: z.string().max(200, 'Bio cannot exceed 200 characters').optional(),
-  logoUrl: z.string().optional().or(z.literal('')),
-  coverUrl: z.string().optional().or(z.literal('')),
-  companyInfo: z.string().max(200, 'Company info cannot exceed 200 characters').optional(),
+  logoUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  coverUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  content: z.array(contentBlockSchema),
   links: z.array(linkSchema),
   theme: z.string(),
   animatedBackground: z.string(),
@@ -82,10 +92,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       name: profile.name,
       slug: profile.slug,
       jobTitle: profile.jobTitle,
-      bio: profile.bio || '',
       logoUrl: profile.logoUrl || '',
       coverUrl: profile.coverUrl || '',
-      companyInfo: profile.companyInfo || '',
+      content: profile.content || [],
       links: profile.links || [],
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
@@ -95,7 +104,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: contentFields, append: appendContent, remove: removeContent, move: moveContent } = useFieldArray({
+    control: form.control,
+    name: 'content',
+  });
+
+  const { fields: linkFields, append: appendLink, remove: removeLink } = useFieldArray({
     control: form.control,
     name: 'links',
   });
@@ -103,9 +117,21 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     
+    const profileData = {
+        ...data,
+        content: data.content.map(block => ({
+            ...block,
+            level: block.level || undefined,
+            text: block.text || undefined,
+            url: block.url || undefined,
+            alt: block.alt || undefined,
+            author: block.author || undefined,
+        }))
+    };
+
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [] });
+        const newProfile = await createProfile({ ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [] });
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -113,7 +139,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         router.push(`/dashboard/edit/${newProfile.slug}`);
         router.refresh();
       } else {
-        const updated: Profile = { ...profile, ...data, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
+        const updated: Profile = { ...profile, ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',
@@ -144,6 +170,28 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     }
   };
 
+  const addBlock = (type: 'heading' | 'text' | 'image' | 'quote') => {
+    const newBlock: any = { id: new Date().toISOString(), type };
+    switch (type) {
+        case 'heading':
+            newBlock.text = 'New Heading';
+            newBlock.level = 'h2';
+            break;
+        case 'text':
+            newBlock.text = 'New paragraph text.';
+            break;
+        case 'image':
+            newBlock.url = '';
+            newBlock.alt = 'Image description';
+            break;
+        case 'quote':
+            newBlock.text = 'A memorable quote.';
+            newBlock.author = 'Author';
+            break;
+    }
+    appendContent(newBlock);
+  };
+
 
   return (
     <>
@@ -151,7 +199,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Core Information</CardTitle>
+              <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -194,34 +242,143 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Short Bio</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="A brief introduction about yourself." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="companyInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>About Company/Work</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Information about your company or work." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+                <CardTitle>Content Blocks</CardTitle>
+                <FormDescription>
+                    Add and arrange blocks of content to build your profile page.
+                </FormDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-4">
+                    {contentFields.map((field, index) => (
+                        <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                            <div className="absolute top-2 right-2 flex flex-col gap-1">
+                                <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveContent(index, index - 1)} disabled={index === 0}>
+                                    <ArrowUp className="h-4 w-4" />
+                                </Button>
+                                <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveContent(index, index + 1)} disabled={index === contentFields.length - 1}>
+                                    <ArrowDown className="h-4 w-4" />
+                                </Button>
+                                <Button type="button" size="icon" variant="destructive-ghost" className="h-7 w-7" onClick={() => removeContent(index)}>
+                                    <Trash className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            {field.type === 'heading' && (
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <FormField
+                                        control={form.control}
+                                        name={`content.${index}.text`}
+                                        render={({ field }) => (
+                                            <FormItem className="col-span-3">
+                                                <FormLabel>Heading Text</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`content.${index}.level`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Level</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="h1">H1</SelectItem>
+                                                        <SelectItem value="h2">H2</SelectItem>
+                                                        <SelectItem value="h3">H3</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                            {field.type === 'text' && (
+                                <FormField
+                                    control={form.control}
+                                    name={`content.${index}.text`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Paragraph Text</FormLabel>
+                                            <FormControl><Textarea {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {field.type === 'image' && (
+                                <div className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name={`content.${index}.url`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Image URL</FormLabel>
+                                                <FormControl><Input placeholder="https://example.com/image.png" {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`content.${index}.alt`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Alt Text (for accessibility)</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                            {field.type === 'quote' && (
+                                <div className="space-y-4">
+                                     <FormField
+                                        control={form.control}
+                                        name={`content.${index}.text`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Quote Text</FormLabel>
+                                                <FormControl><Textarea {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`content.${index}.author`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Author (optional)</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                <div className="flex flex-wrap gap-2 pt-4">
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('heading')}><Type className="mr-2 h-4 w-4" /> Add Heading</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('text')}><Pilcrow className="mr-2 h-4 w-4" /> Add Text</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('image')}><ImageIcon className="mr-2 h-4 w-4" /> Add Image</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('quote')}><MessageSquareQuote className="mr-2 h-4 w-4" /> Add Quote</Button>
+                </div>
+            </CardContent>
+          </Card>
+
 
           <Card>
             <CardHeader>
@@ -264,18 +421,18 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                           render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Theme</FormLabel>
-                                <FormControl>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a theme" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            {themes.map(theme => (
-                                                <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {themes.map(theme => (
+                                            <SelectItem key={theme} value={theme} className="capitalize">{theme}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                           )}
@@ -286,18 +443,18 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                           render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Animated Background</FormLabel>
-                                  <FormControl>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a background" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            {backgrounds.map(bg => (
-                                                <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {backgrounds.map(bg => (
+                                            <SelectItem key={bg} value={bg} className="capitalize">{bg}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                           )}
@@ -308,18 +465,18 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                           render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Layout</FormLabel>
-                                <FormControl>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a layout" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            {layouts.map(layout => (
-                                                <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {layouts.map(layout => (
+                                            <SelectItem key={layout} value={layout} className="capitalize">{layout.replace('-', ' ')}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                           )}
@@ -380,7 +537,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {fields.map((field, index) => {
+              {linkFields.map((field, index) => {
                  return (
                     <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                       <FormField
@@ -423,7 +580,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                             </FormItem>
                             )}
                          />
-                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                        <Button type="button" variant="destructive" size="icon" onClick={() => removeLink(index)}>
                             <Trash className="h-4 w-4" />
                         </Button>
                        </div>
@@ -435,7 +592,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 variant="outline"
                 size="sm"
                 className="mt-2"
-                onClick={() => append({ id: new Date().toISOString(), title: '', url: '', icon: '' })}
+                onClick={() => appendLink({ id: new Date().toISOString(), title: '', url: '', icon: '' })}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Link
@@ -478,5 +635,3 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     </>
   );
 }
-
-    

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Profile } from '@/lib/types';
+import type { Profile, ContentBlock, HeadingBlock, TextBlock, ImageBlock, QuoteBlock } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import { useApp } from '@/components/providers';
 import { cn } from '@/lib/utils';
 import { translations } from '@/lib/translations';
 import Image from 'next/image';
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, MessageSquare } from 'lucide-react';
 
 const themeStyles = {
   default: {
@@ -116,6 +116,34 @@ const getIcon = (iconUrl?: string) => {
 };
 
 
+const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selectedTheme: any }) => {
+    switch (block.type) {
+        case 'heading':
+            const HeadingTag = block.level;
+            return <HeadingTag className={cn('font-headline', {
+                'text-2xl': HeadingTag === 'h1',
+                'text-xl': HeadingTag === 'h2',
+                'text-lg': HeadingTag === 'h3',
+            }, selectedTheme.cardTitle)}>{block.text}</HeadingTag>;
+        case 'text':
+            return <p className="text-sm">{block.text}</p>;
+        case 'image':
+            return <div className="relative aspect-video w-full overflow-hidden rounded-md my-4"><Image src={block.url} alt={block.alt} layout="fill" objectFit="cover" /></div>;
+        case 'quote':
+            return (
+                <blockquote className={cn("border-l-4 pl-4 italic my-4", selectedTheme.separator)}>
+                    <p className="flex items-start">
+                        <MessageSquare className="w-5 h-5 mr-2 shrink-0" />
+                        <span>{block.text}</span>
+                    </p>
+                    {block.author && <footer className="mt-2 text-sm not-italic">- {block.author}</footer>}
+                </blockquote>
+            );
+        default:
+            return null;
+    }
+};
+
 const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
     <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
         {profile.coverUrl && (
@@ -133,14 +161,12 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
               {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
             </div>
             <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
-            <p className={cn("text-sm pt-2", selectedTheme.cardDescription)}>{profile.bio}</p>
         </CardHeader>
         <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-            <Separator className={cn("my-4", selectedTheme.separator)} />
             <div className="space-y-4">
-                <h3 className={cn("text-center font-semibold text-lg font-headline", selectedTheme.cardTitle)}>{t.about}</h3>
-                <p className="text-sm text-center">{profile.companyInfo}</p>
+                {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
+
             {profile.links && profile.links.length > 0 && (
                 <>
                     <Separator className={cn("my-4", selectedTheme.separator)} />
@@ -183,7 +209,10 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                   {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
                 </div>
                 <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
-                <p className={cn("text-sm pt-2 max-w-xs", selectedTheme.cardDescription)}>{profile.bio}</p>
+            </div>
+            
+            <div className="space-y-4 mt-6 text-center">
+                {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
             </div>
 
             {profile.links && profile.links.length > 0 && (
@@ -203,16 +232,6 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                     ))}
                 </div>
             )}
-            
-            {profile.companyInfo && (
-                <>
-                    <Separator className={cn("my-6", selectedTheme.separator)} />
-                    <div className="space-y-2">
-                        <h3 className={cn("text-center font-semibold text-lg font-headline", selectedTheme.cardTitle)}>{t.about}</h3>
-                        <p className="text-sm text-center">{profile.companyInfo}</p>
-                    </div>
-                </>
-            )}
         </CardContent>
     </Card>
 );
@@ -230,7 +249,9 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
                   {profile.isVerified && <BadgeCheck className="w-7 h-7 text-blue-500" />}
                 </div>
                 <CardDescription className={cn("text-xl", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
-                <p className={cn("text-md pt-2 max-w-sm", selectedTheme.cardDescription)}>{profile.bio}</p>
+                <div className="space-y-4 pt-2 max-w-sm">
+                    {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
+                </div>
             </CardHeader>
             <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                 {profile.links && profile.links.length > 0 && (

@@ -10,15 +10,16 @@ export default function NewProfilePage() {
         slug: `new-profile-${Date.now()}`,
         name: 'New Profile',
         jobTitle: 'Your Job Title',
-        bio: 'A short and catchy bio about you.',
         logoUrl: '',
         coverUrl: '',
-        companyInfo: 'Details about where you work or what you do.',
         theme: 'default',
         animatedBackground: 'none',
         layout: 'default',
         isPublished: false,
         isVerified: false,
+        content: [
+            { id: `text-${Date.now()}`, type: 'text', text: 'A short and catchy bio about you.' }
+        ],
         links: [],
     };
 

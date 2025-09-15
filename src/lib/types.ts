@@ -35,20 +35,48 @@ export type ProfileLayout =
   | 'stacked'
   | 'minimalist-center';
 
+export type ContentBlockBase = {
+  id: string;
+};
+
+export type HeadingBlock = ContentBlockBase & {
+  type: 'heading';
+  text: string;
+  level: 'h1' | 'h2' | 'h3';
+};
+
+export type TextBlock = ContentBlockBase & {
+  type: 'text';
+  text: string;
+};
+
+export type ImageBlock = ContentBlockBase & {
+  type: 'image';
+  url: string;
+  alt: string;
+};
+
+export type QuoteBlock = ContentBlockBase & {
+  type: 'quote';
+  text: string;
+  author: string;
+};
+
+export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock;
+
 export type Profile = {
   id: string; // Will be a UUID from Supabase
   slug: string;
   name: string;
   jobTitle: string;
-  bio: string;
   logoUrl: string;
   coverUrl?: string;
-  companyInfo: string;
   theme: Theme;
   animatedBackground: AnimatedBackground;
   layout: ProfileLayout;
   isPublished: boolean;
   isVerified: boolean;
+  content: ContentBlock[];
   links: Link[];
   createdAt?: string; // Supabase adds this
 };
