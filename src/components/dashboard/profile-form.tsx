@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Link as LinkIcon } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +36,6 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
 import { ImageUpload } from './image-upload';
-import { IconPicker } from '../icon-picker';
 
 
 const linkSchema = z.object({
@@ -165,6 +164,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                             isAvatar
                           />
                       </FormControl>
+                      <FormDescription>Recommended size: 200x200px</FormDescription>
                       <FormMessage />
                       </FormItem>
                   )}
@@ -256,6 +256,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                 recommendedSize="800x300px"
                             />
                         </FormControl>
+                         <FormDescription>Recommended size: 800x300px</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -345,19 +346,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               {fields.map((field, index) => {
                  return (
                     <div key={field.id} className="flex gap-4 items-end">
-                      <FormField
-                        control={form.control}
-                        name={`links.${index}.icon`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Icon</FormLabel>
-                            <FormControl>
-                                <IconPicker value={field.value} onChange={field.onChange} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="pt-8">
+                         <LinkIcon className="h-5 w-5" />
+                      </div>
                       <FormField
                         control={form.control}
                         name={`links.${index}.title`}
