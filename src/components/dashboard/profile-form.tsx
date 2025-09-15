@@ -65,7 +65,7 @@ const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minim
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
 const layouts: ProfileLayout[] = ['default', 'stacked'];
 const iconNames = Object.keys(LucideIcons).filter(
-  (key) => typeof (LucideIcons as any)[key] === 'object' && key !== 'default' && key !== 'icons'
+  (key) => typeof (LucideIcons as any)[key] === 'object' && key !== 'default' && key !== 'icons' && key !== 'createLucideIcon'
 );
 
 
@@ -337,7 +337,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => {
-                 const Icon = field.icon && (LucideIcons as any)[field.icon] ? (LucideIcons as any)[field.icon] : LucideIcons.Link;
+                 const SelectedIcon = field.icon && iconNames.includes(field.icon) ? (LucideIcons as any)[field.icon] : LucideIcons.Link;
                  return (
                     <div key={field.id} className="flex gap-4 items-end">
                       <FormField
@@ -350,14 +350,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                 <FormControl>
                                   <SelectTrigger className="w-[80px]">
                                     <SelectValue asChild>
-                                      <Icon className="h-5 w-5" />
+                                      <SelectedIcon className="h-5 w-5" />
                                     </SelectValue>
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   {iconNames.map(name => {
                                     const LoopIcon = (LucideIcons as any)[name];
-                                    if (!LoopIcon || typeof LoopIcon === 'function') return null;
                                     return (
                                       <SelectItem key={name} value={name}>
                                         <div className="flex items-center gap-2">
