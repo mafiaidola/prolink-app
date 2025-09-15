@@ -45,11 +45,14 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
 
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
 
-    if (error || !data) {
-        if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "exact one row not found"
-            console.error('Error fetching homepage content:', error);
-        }
-        // Provide a default fallback if the database is empty or errors out
+    if (error && error.code !== 'PGRST116') { // PGRST116 means "exact one row not found"
+        console.error('Error fetching homepage content:', error);
+        return fallbackContent;
+    }
+
+    if (!data) {
+        // This can happen if RLS is on but no policy allows access, or if the table is empty.
+        // We will return the fallback content.
         return fallbackContent;
     }
     
