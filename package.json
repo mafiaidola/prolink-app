@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "genkit:dev": "genkit start --no-watch -- tsx src/ai/dev.ts",
-    "genkit:watch": "CI=true genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
