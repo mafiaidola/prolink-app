@@ -33,9 +33,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import React from 'react';
-import { IconPicker } from '../icon-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { QRCodeDialog } from './qr-code-dialog';
+import * as LucideIcons from 'lucide-react';
 
 const linkSchema = z.object({
   id: z.string(),
@@ -59,6 +59,9 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
+const iconNames = [
+  'Link', 'Linkedin', 'Github', 'Twitter', 'Instagram', 'Facebook', 'Globe', 'Mail', 'Phone', 'MessageCircle', 'Youtube', 'Twitch', 'Figma', 'Dribbble', 'Code', 'Codepen', 'Book', 'FileText', 'Briefcase', 'ShoppingBag', 'Bitcoin'
+];
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const router = useRouter();
@@ -274,52 +277,74 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-4 items-end">
-                  <FormField
-                      control={form.control}
-                      name={`links.${index}.icon`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Icon</FormLabel>
-                          <FormControl>
-                            <IconPicker value={field.value} onChange={field.onChange} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  <FormField
-                    control={form.control}
-                    name={`links.${index}.title`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="LinkedIn" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`links.${index}.url`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://linkedin.com/in/..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+              {fields.map((field, index) => {
+                 const Icon = field.icon && (LucideIcons as any)[field.icon] ? (LucideIcons as any)[field.icon] : LucideIcons.Link;
+                 return (
+                    <div key={field.id} className="flex gap-4 items-end">
+                      <FormField
+                          control={form.control}
+                          name={`links.${index}.icon`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Icon</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="w-[80px]">
+                                    <SelectValue asChild>
+                                      <Icon className="h-5 w-5" />
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {iconNames.map(name => {
+                                    const LoopIcon = (LucideIcons as any)[name];
+                                    return (
+                                      <SelectItem key={name} value={name}>
+                                        <div className="flex items-center gap-2">
+                                          <LoopIcon className="h-5 w-5" />
+                                          <span>{name}</span>
+                                        </div>
+                                      </SelectItem>
+                                    )
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      <FormField
+                        control={form.control}
+                        name={`links.${index}.title`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="LinkedIn" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`links.${index}.url`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormLabel>URL</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://linkedin.com/in/..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                 );
+              })}
               <Button
                 type="button"
                 variant="outline"
