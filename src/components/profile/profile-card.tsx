@@ -99,17 +99,24 @@ const themeStyles = {
   },
 };
 
-const DefaultLayout = ({ profile, selectedTheme, t, getIcon }: { profile: Profile; selectedTheme: any; t: any; getIcon: any; }) => (
+const getIcon = (name?: string) => {
+    if (!name) return <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
+    const Icon = (LucideIcons as any)[name];
+    return Icon ? <Icon className="h-5 w-5 rtl:ml-3 ltr:mr-3 group-hover:animate-pulse" /> : <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
+};
+
+
+const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
     <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
         {profile.coverUrl && (
             <div className="relative h-36">
-                <Image src={profile.coverUrl} alt={`${profile.name}'s cover photo`} layout="fill" objectFit="cover" data-ai-hint="background abstract" />
+                <Image src={profile.coverUrl} alt={`${profile.name}'s cover photo`} fill style={{ objectFit: "cover" }} data-ai-hint="background abstract" />
             </div>
         )}
-        <CardHeader className={cn("items-center text-center", profile.coverUrl ? "-mt-16" : "")}>
-            <Avatar className={cn("w-24 h-24 mb-4 border-4 shadow-lg", selectedTheme.card === 'bg-white/10 backdrop-filter backdrop-blur-lg border-white/20 text-white' ? 'border-white/20' : 'border-background')}>
-            <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
-            <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+        <CardHeader className={cn("items-center text-center pt-6", profile.coverUrl ? "-mt-16" : "")}>
+            <Avatar className={cn("w-24 h-24 mb-4 border-4 shadow-lg", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
+                <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
+                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
             <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
@@ -118,91 +125,131 @@ const DefaultLayout = ({ profile, selectedTheme, t, getIcon }: { profile: Profil
         <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
             <Separator className={cn("my-4", selectedTheme.separator)} />
             <div className="space-y-4">
-            <h3 className={cn("text-center font-semibold text-lg font-headline", selectedTheme.cardTitle)}>{t.about}</h3>
-            <p className="text-sm text-center">{profile.companyInfo}</p>
-            </div>
-            <Separator className={cn("my-4", selectedTheme.separator)} />
-            <div className="flex flex-col space-y-3">
-            {profile.links.map((link) => (
-                <Button
-                key={link.id}
-                variant={selectedTheme.button as any}
-                className={cn("w-full justify-start h-12 text-md group", selectedTheme.linkButton)}
-                asChild
-                >
-                <Link href={link.url} target="_blank" rel="noopener noreferrer">
-                    {getIcon(link.icon || 'Link')}
-                    <span>{link.title}</span>
-                </Link>
-                </Button>
-            ))}
-            </div>
-        </CardContent>
-    </Card>
-);
-
-const StackedLayout = ({ profile, selectedTheme, t, getIcon }: { profile: Profile; selectedTheme: any; t: any; getIcon: any; }) => (
-    <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
-        {profile.coverUrl && (
-            <div className="relative h-36">
-            <Image src={profile.coverUrl} alt={`${profile.name}'s cover photo`} layout="fill" objectFit="cover" data-ai-hint="background abstract" />
-            </div>
-        )}
-        <CardContent className="p-6">
-            <div className={cn("flex flex-col items-center text-center", profile.coverUrl ? "-mt-20" : "")}>
-                <Avatar className={cn("w-24 h-24 mb-4 border-4 shadow-lg", selectedTheme.card === 'bg-white/10 backdrop-filter backdrop-blur-lg border-white/20 text-white' ? 'border-white/20' : 'border-background')}>
-                <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
-                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
-                <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
-                <p className={cn("text-sm pt-2", selectedTheme.cardDescription)}>{profile.bio}</p>
-            </div>
-
-            <div className="flex flex-col space-y-3 mt-6">
-            {profile.links.map((link) => (
-                <Button
-                key={link.id}
-                variant={selectedTheme.button as any}
-                className={cn("w-full justify-start h-12 text-md group", selectedTheme.linkButton)}
-                asChild
-                >
-                <Link href={link.url} target="_blank" rel="noopener noreferrer">
-                    {getIcon(link.icon || 'Link')}
-                    <span>{link.title}</span>
-                </Link>
-                </Button>
-            ))}
-            </div>
-
-            <Separator className={cn("my-6", selectedTheme.separator)} />
-
-            <div className="space-y-4">
                 <h3 className={cn("text-center font-semibold text-lg font-headline", selectedTheme.cardTitle)}>{t.about}</h3>
                 <p className="text-sm text-center">{profile.companyInfo}</p>
             </div>
+            {profile.links && profile.links.length > 0 && (
+                <>
+                    <Separator className={cn("my-4", selectedTheme.separator)} />
+                    <div className="flex flex-col space-y-3">
+                        {profile.links.map((link) => (
+                            <Button
+                                key={link.id}
+                                variant={selectedTheme.button as any}
+                                className={cn("w-full justify-start h-12 text-md group", selectedTheme.linkButton)}
+                                asChild
+                            >
+                                <Link href={link.url} target="_blank" rel="noopener noreferrer">
+                                    {getIcon(link.icon)}
+                                    <span>{link.title}</span>
+                                </Link>
+                            </Button>
+                        ))}
+                    </div>
+                </>
+            )}
         </CardContent>
     </Card>
 );
+
+const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+    <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
+        {profile.coverUrl && (
+            <div className="relative h-36">
+                <Image src={profile.coverUrl} alt={`${profile.name}'s cover photo`} fill style={{ objectFit: "cover" }} data-ai-hint="background abstract" />
+            </div>
+        )}
+        <CardContent className="p-6">
+            <div className={cn("flex flex-col items-center text-center", profile.coverUrl ? "-mt-20" : "mt-6")}>
+                <Avatar className={cn("w-24 h-24 mb-4 border-4 shadow-lg", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
+                    <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
+                    <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                <p className={cn("text-sm pt-2 max-w-xs", selectedTheme.cardDescription)}>{profile.bio}</p>
+            </div>
+
+            {profile.links && profile.links.length > 0 && (
+                <div className="flex flex-col space-y-3 mt-6">
+                    {profile.links.map((link) => (
+                        <Button
+                            key={link.id}
+                            variant={selectedTheme.button as any}
+                            className={cn("w-full justify-center h-12 text-md group", selectedTheme.linkButton)}
+                            asChild
+                        >
+                            <Link href={link.url} target="_blank" rel="noopener noreferrer">
+                                {getIcon(link.icon)}
+                                <span>{link.title}</span>
+                            </Link>
+                        </Button>
+                    ))}
+                </div>
+            )}
+            
+            {profile.companyInfo && (
+                <>
+                    <Separator className={cn("my-6", selectedTheme.separator)} />
+                    <div className="space-y-2">
+                        <h3 className={cn("text-center font-semibold text-lg font-headline", selectedTheme.cardTitle)}>{t.about}</h3>
+                        <p className="text-sm text-center">{profile.companyInfo}</p>
+                    </div>
+                </>
+            )}
+        </CardContent>
+    </Card>
+);
+
+const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+    <div className="w-full max-w-md mx-auto z-10 flex flex-col items-center justify-center min-h-full text-center">
+        <Card className={cn("w-full transition-all duration-300 overflow-hidden !bg-transparent !shadow-none !border-none", selectedTheme.card)}>
+            <CardHeader className="items-center text-center pt-6">
+                <Avatar className={cn("w-28 h-28 mb-4 border-4 shadow-lg", selectedTheme.card.includes('white/10') ? 'border-white/20' : 'border-card')}>
+                    <AvatarImage src={profile.logoUrl} alt={profile.name} data-ai-hint="person face" />
+                    <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <CardTitle className={cn("text-4xl font-headline", selectedTheme.cardTitle)}>{profile.name}</CardTitle>
+                <CardDescription className={cn("text-xl", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                <p className={cn("text-md pt-2 max-w-sm", selectedTheme.cardDescription)}>{profile.bio}</p>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+                {profile.links && profile.links.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-4 mt-4">
+                        {profile.links.map((link) => (
+                            <Button
+                                key={link.id}
+                                variant={'ghost'}
+                                size="icon"
+                                className={cn("w-14 h-14 rounded-full group", selectedTheme.linkButton)}
+                                asChild
+                                title={link.title}
+                            >
+                                <Link href={link.url} target="_blank" rel="noopener noreferrer">
+                                    {getIcon(link.icon)}
+                                </Link>
+                            </Button>
+                        ))}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    </div>
+);
+
 
 const layouts = {
     default: DefaultLayout,
     stacked: StackedLayout,
+    'minimalist-center': MinimalistCenterLayout,
 };
 
 export function ProfileCard({ profile }: { profile: Profile }) {
   const { language } = useApp();
   
   const selectedTheme = themeStyles[profile.theme] || themeStyles.default;
-
   const t = translations[language];
-  
-  const getIcon = (name: string) => {
-    const Icon = (LucideIcons as any)[name];
-    return Icon ? <Icon className="h-5 w-5 rtl:ml-3 ltr:mr-3 group-hover:animate-pulse" /> : <LucideIcons.Link className="h-5 w-5 rtl:ml-3 ltr:mr-3" />;
-  };
-
   const LayoutComponent = layouts[profile.layout] || layouts.default;
 
-  return <LayoutComponent profile={profile} selectedTheme={selectedTheme} t={t} getIcon={getIcon} />;
+  return <LayoutComponent profile={profile} selectedTheme={selectedTheme} t={t} />;
 }

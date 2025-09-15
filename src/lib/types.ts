@@ -32,7 +32,8 @@ export type AnimatedBackground =
 
 export type ProfileLayout = 
   | 'default' 
-  | 'stacked';
+  | 'stacked'
+  | 'minimalist-center';
 
 export type Profile = {
   id: string;
