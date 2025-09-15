@@ -403,7 +403,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardContent>
           </Card>
           <div className="flex justify-between">
-             <Button type="button" variant="outline" onClick={() => setShowQrCode(true)} disabled={isNewProfile}>
+            <Button type="button" variant="outline" onClick={() => setShowQrCode(true)} disabled={isNewProfile}>
               <QrCode className="mr-2 h-4 w-4" />
               Show QR Code
             </Button>

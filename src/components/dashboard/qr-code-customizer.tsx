@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Palette, Image as ImageIcon, Square, CircleDot, GripVertical, Settings2 } from 'lucide-react';
+import { Palette, Image as ImageIcon, Settings2 } from 'lucide-react';
 
 export type QrCodeCustomization = {
   foregroundColor: string;
