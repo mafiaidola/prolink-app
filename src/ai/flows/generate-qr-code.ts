@@ -12,7 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import QRCode from 'qrcode';
 
-export const GenerateQrCodeInputSchema = z.object({
+const GenerateQrCodeInputSchema = z.object({
   text: z.string().describe('The text or URL to encode in the QR code.'),
   foregroundColor: z.string().optional().default('#000000').describe('The foreground color of the QR code (hex).'),
   backgroundColor: z.string().optional().default('#ffffff').describe('The background color of the QR code (hex).'),
@@ -24,14 +24,21 @@ export const GenerateQrCodeInputSchema = z.object({
 
 export type GenerateQrCodeInput = z.infer<typeof GenerateQrCodeInputSchema>;
 
-export const GenerateQrCodeOutputSchema = z.object({
+const GenerateQrCodeOutputSchema = z.object({
   qrCodeDataUrl: z.string().describe('The generated QR code as a base64 data URI.'),
 });
 
 export type GenerateQrCodeOutput = z.infer<typeof GenerateQrCodeOutputSchema>;
 
-async function generate(input: GenerateQrCodeInput): Promise<GenerateQrCodeOutput> {
-    const options: QRCode.QRCodeToDataURLOptions = {
+
+const generateQrCodeFlow = ai.defineFlow(
+  {
+    name: 'generateQrCodeFlow',
+    inputSchema: GenerateQrCodeInputSchema,
+    outputSchema: GenerateQrCodeOutputSchema,
+  },
+  async (input) => {
+      const options: QRCode.QRCodeToDataURLOptions = {
         errorCorrectionLevel: 'H', // High correction level for logo embedding
         margin: 2,
         width: 300,
@@ -49,16 +56,10 @@ async function generate(input: GenerateQrCodeInput): Promise<GenerateQrCodeOutpu
     // For now, we return the basic, colored QR code.
     
     return { qrCodeDataUrl };
-}
-
-
-export const generateQrCode = ai.defineFlow(
-  {
-    name: 'generateQrCodeFlow',
-    inputSchema: GenerateQrCodeInputSchema,
-    outputSchema: GenerateQrCodeOutputSchema,
-  },
-  async (input) => {
-    return await generate(input);
   }
 );
+
+
+export async function generateQrCode(input: GenerateQrCodeInput): Promise<GenerateQrCodeOutput> {
+    return generateQrCodeFlow(input);
+}
