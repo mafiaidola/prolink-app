@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -190,8 +191,16 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       logoUrl: profile.logoUrl || '',
       coverUrl: profile.coverUrl || '',
       content: profile.content || [],
-      links: profile.links || [],
-      vCard: profile.vCard || { firstName: '', lastName: '', email: '', phone: '', company: '', title: '', website: '' },
+      links: profile.links?.map(link => ({ ...link, icon: link.icon || '' })) || [],
+      vCard: {
+        firstName: profile.vCard?.firstName || '',
+        lastName: profile.vCard?.lastName || '',
+        email: profile.vCard?.email || '',
+        phone: profile.vCard?.phone || '',
+        company: profile.vCard?.company || '',
+        title: profile.vCard?.title || '',
+        website: profile.vCard?.website || '',
+      },
       theme: profile.theme,
       animatedBackground: profile.animatedBackground,
       layout: profile.layout,
@@ -861,3 +870,5 @@ function SkillsSubForm({ form, contentIndex }: { form: any, contentIndex: number
         </div>
     );
 }
+
+    
