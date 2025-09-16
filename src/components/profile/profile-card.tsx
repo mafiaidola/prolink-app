@@ -110,7 +110,7 @@ const getIcon = (iconUrl?: string) => {
           alt="icon"
           width={20}
           height={20}
-          className="rtl:ml-3 ltr:mr-3 group-hover:animate-pulse"
+          className="rtl:ml-3 ltr:mr-3 group-hover:animate-pulse object-contain"
         />
       );
     }

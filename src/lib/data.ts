@@ -38,7 +38,8 @@ const fallbackProfiles: Profile[] = [
             { "id": "bio-2", "type": "text", "text": "Building beautiful and performant user interfaces with React and Next.js. Lover of clean code and good coffee." },
             { "id": "quote-1", "type": "quote", "text": "Code is like humor. When you have to explain it, it’s bad.", "author": "Cory House" }
         ],
-        "links": [{"id": "github", "title": "GitHub Profile", "url": "https://github.com/ahmed-khan", "icon": "https://cdn.simpleicons.org/github/white"}, {"id": "portfolio", "title": "Portfolio", "url": "https://ahmed-khan-portfolio.com", "icon": "https://cdn.simpleicons.org/briefcase/white"}]
+        "links": [{"id": "github", "title": "GitHub Profile", "url": "https://github.com/ahmed-khan", "icon": "https://cdn.simpleicons.org/github/white"}, {"id": "portfolio", "title": "Portfolio", "url": "https://ahmed-khan-portfolio.com", "icon": "https://cdn.simpleicons.org/briefcase/white"}],
+        "vCard": { "firstName": "Ahmed", "lastName": "Khan", "email": "ahmed@example.com" }
     }
 ];
 
