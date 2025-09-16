@@ -84,6 +84,12 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
             { "icon": "Languages", "title": "Bilingual Support", "description": "Full support for English (LTR) and Arabic (RTL) to reach a wider audience." }
         ],
         faviconUrl: '/favicon.ico',
+        logoUrl: '/logo.svg',
+        heroImageUrl: 'https://picsum.photos/seed/prolink-hero/1200/800',
+        heroButton1Text: 'Get Started',
+        heroButton1Link: '/dashboard',
+        heroButton2Text: 'View Demo',
+        heroButton2Link: '/nour-al-huda',
     };
     
     const supabase = createClient();
@@ -104,5 +110,11 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
         description: data.description || fallbackContent.description,
         features: features.length > 0 ? features : fallbackContent.features,
         faviconUrl: data.faviconUrl || fallbackContent.faviconUrl,
+        logoUrl: data.logoUrl || fallbackContent.logoUrl,
+        heroImageUrl: data.heroImageUrl || fallbackContent.heroImageUrl,
+        heroButton1Text: data.heroButton1Text || fallbackContent.heroButton1Text,
+        heroButton1Link: data.heroButton1Link || fallbackContent.heroButton1Link,
+        heroButton2Text: data.heroButton2Text || fallbackContent.heroButton2Text,
+        heroButton2Link: data.heroButton2Link || fallbackContent.heroButton2Link,
     };
 };

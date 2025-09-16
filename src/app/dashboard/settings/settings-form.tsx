@@ -12,6 +12,7 @@ import { PlusCircle, Trash, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React, { useActionState, useEffect } from 'react';
 import { saveSettings, type SettingsState } from '@/lib/settings-actions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const featureSchema = z.object({
     icon: z.string().min(1, "Icon is required."),
@@ -25,6 +26,12 @@ const homepageContentSchema = z.object({
     description: z.string().min(1, "Description is required."),
     features: z.array(featureSchema),
     faviconUrl: z.string().url().optional().or(z.literal('')),
+    logoUrl: z.string().url().optional().or(z.literal('')),
+    heroImageUrl: z.string().url().optional().or(z.literal('')),
+    heroButton1Text: z.string().optional(),
+    heroButton1Link: z.string().optional(),
+    heroButton2Text: z.string().optional(),
+    heroButton2Link: z.string().optional(),
 });
 
 
@@ -77,32 +84,23 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                 <FormControl>
                                     <Input {...field} name={field.name}/>
                                 </FormControl>
+                                <FormDescription>The main title of the homepage and the site name in the header.</FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    <FormField
+                     <FormField
                         control={form.control}
-                        name="subtitle"
+                        name="logoUrl"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Subtitle</FormLabel>
+                                <FormLabel>Site Logo URL</FormLabel>
                                 <FormControl>
-                                    <Input {...field} name={field.name}/>
+                                    <Input placeholder="https://example.com/logo.svg" {...field} name={field.name} />
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl>
-                                    <Textarea {...field} name={field.name}/>
-                                </FormControl>
+                                <FormDescription>
+                                    Provide a URL to an external image to be used as the site logo in the header.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -117,75 +115,186 @@ export function SettingsForm({ content }: { content: HomepageContent }) {
                                     <Input placeholder="https://example.com/favicon.ico" {...field} name={field.name} />
                                 </FormControl>
                                 <FormDescription>
-                                    Provide a URL to an external image to be used as the favicon.
+                                    Provide a URL to an external image to be used as the browser tab favicon.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
-
-                <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Features</h3>
-                    {fields.map((field, index) => (
-                        <div key={field.id} className="flex gap-4 items-end p-4 border rounded-md">
-                             <FormField
-                                control={form.control}
-                                name={`features.${index}.icon`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Icon</FormLabel>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Hero Section</CardTitle>
+                        <CardDescription>Customize the content of the main section on your homepage.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="subtitle"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Subtitle</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Palette" {...field} name={field.name} />
+                                        <Input {...field} name={field.name}/>
                                     </FormControl>
                                     <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                        <Textarea {...field} name={field.name}/>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="heroImageUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Background Image URL</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://images.unsplash.com/..." {...field} name={field.name} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="heroButton1Text"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Primary Button Text</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Get Started" {...field} name={field.name} />
+                                        </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
-                                />
-                            <div className="flex-1 space-y-2">
-                                <FormField
-                                    control={form.control}
-                                    name={`features.${index}.title`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Feature Title</FormLabel>
+                            />
+                             <FormField
+                                control={form.control}
+                                name="heroButton1Link"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Primary Button Link</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="/dashboard" {...field} name={field.name} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="heroButton2Text"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Secondary Button Text</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="View Demo" {...field} name={field.name} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="heroButton2Link"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Secondary Button Link</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="/nour-al-huda" {...field} name={field.name} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                         <CardTitle>Features Section</CardTitle>
+                        <CardDescription>Manage the features listed on your homepage.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="flex gap-4 items-end p-4 border rounded-md">
+                                    <FormField
+                                        control={form.control}
+                                        name={`features.${index}.icon`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormLabel>Icon</FormLabel>
                                             <FormControl>
-                                                <Input {...field} name={field.name} />
+                                                <Input placeholder="e.g. Palette" {...field} name={field.name} />
                                             </FormControl>
                                             <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name={`features.${index}.description`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Feature Description</FormLabel>
-                                            <FormControl>
-                                                <Textarea {...field} name={field.name} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                                <Trash className="h-4 w-4" />
+                                            </FormItem>
+                                        )}
+                                        />
+                                    <div className="flex-1 space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name={`features.${index}.title`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Feature Title</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} name={field.name} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`features.${index}.description`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Feature Description</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} name={field.name} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                        <Trash className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="mt-2"
+                                onClick={() => append({ icon: 'HelpCircle', title: '', description: '' })}
+                            >
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Feature
                             </Button>
                         </div>
-                    ))}
-                     <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => append({ icon: 'HelpCircle', title: '', description: '' })}
-                    >
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Feature
-                    </Button>
-                </div>
+                    </CardContent>
+                </Card>
 
                 <div className="flex justify-end">
                     <Button type="submit" disabled={form.formState.isSubmitting}>

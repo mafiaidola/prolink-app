@@ -16,7 +16,10 @@ export type Theme =
   | 'dark'
   | 'corporate'
   | 'artistic'
-  | 'tech';
+  | 'tech'
+  | 'sunset'
+  | 'forest'
+  | 'oceanic';
   
 export type AnimatedBackground =
   | 'none'
@@ -122,4 +125,10 @@ export type HomepageContent = {
   description: string;
   features: Feature[];
   faviconUrl?: string;
+  logoUrl?: string;
+  heroImageUrl?: string;
+  heroButton1Text?: string;
+  heroButton1Link?: string;
+  heroButton2Text?: string;
+  heroButton2Link?: string;
 };

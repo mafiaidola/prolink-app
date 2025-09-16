@@ -17,6 +17,12 @@ const homepageContentSchema = z.object({
     description: z.string().min(1, "Description is required."),
     features: z.array(featureSchema),
     faviconUrl: z.string().url().optional().or(z.literal('')),
+    logoUrl: z.string().url().optional().or(z.literal('')),
+    heroImageUrl: z.string().url().optional().or(z.literal('')),
+    heroButton1Text: z.string().optional(),
+    heroButton1Link: z.string().optional(),
+    heroButton2Text: z.string().optional(),
+    heroButton2Link: z.string().optional(),
 });
 
 
@@ -62,6 +68,12 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         description: formData.get('description') as string,
         features: features,
         faviconUrl: formData.get('faviconUrl') as string,
+        logoUrl: formData.get('logoUrl') as string,
+        heroImageUrl: formData.get('heroImageUrl') as string,
+        heroButton1Text: formData.get('heroButton1Text') as string,
+        heroButton1Link: formData.get('heroButton1Link') as string,
+        heroButton2Text: formData.get('heroButton2Text') as string,
+        heroButton2Link: formData.get('heroButton2Link') as string,
     };
 
     const validatedFields = homepageContentSchema.safeParse(dataToValidate);
@@ -83,6 +95,7 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
         
         revalidatePath('/');
         revalidatePath('/dashboard/settings');
+        revalidatePath('/dashboard');
         return { success: true, message: "Settings saved successfully!" };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";

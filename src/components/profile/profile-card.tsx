@@ -100,6 +100,30 @@ const themeStyles = {
     cardTitle: 'text-white',
     linkButton: 'bg-gray-800/80 hover:bg-gray-700/80 text-gray-100'
   },
+  sunset: {
+    card: 'bg-gradient-to-br from-orange-300 via-rose-300 to-fuchsia-400/80 text-white border-white/20',
+    button: 'secondary',
+    separator: 'bg-white/30',
+    cardDescription: 'text-rose-100',
+    cardTitle: 'text-white',
+    linkButton: 'bg-white/20 hover:bg-white/30 text-white'
+  },
+  forest: {
+    card: 'bg-gradient-to-br from-green-200 via-lime-300 to-emerald-400/80 text-green-900 border-green-900/10',
+    button: 'default',
+    separator: 'bg-green-900/20',
+    cardDescription: 'text-green-800',
+    cardTitle: 'text-green-900',
+    linkButton: 'bg-white/50 hover:bg-white/80 text-green-900'
+  },
+  oceanic: {
+    card: 'bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-500/80 text-white border-white/20',
+    button: 'secondary',
+    separator: 'bg-white/30',
+    cardDescription: 'text-sky-100',
+    cardTitle: 'text-white',
+    linkButton: 'bg-white/20 hover:bg-white/30 text-white'
+  }
 };
 
 const getIcon = (iconUrl?: string) => {

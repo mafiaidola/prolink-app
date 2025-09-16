@@ -98,7 +98,7 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech'];
+const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech', 'sunset', 'forest', 'oceanic'];
 const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
 const layouts: ProfileLayout[] = ['default', 'stacked', 'minimalist-center', 'modern-split', 'minimalist-left-align'];
 
@@ -114,6 +114,9 @@ const themePreviews: Record<Theme, { bg: string, text: string }> = {
     corporate: { bg: 'bg-blue-50', text: 'text-blue-900' },
     artistic: { bg: 'bg-gradient-to-br from-yellow-100 to-pink-100', text: 'text-gray-800' },
     tech: { bg: 'bg-gray-900', text: 'text-teal-400' },
+    sunset: { bg: 'bg-gradient-to-r from-orange-400 to-rose-400', text: 'text-white' },
+    forest: { bg: 'bg-gradient-to-r from-green-500 to-teal-600', text: 'text-white' },
+    oceanic: { bg: 'bg-gradient-to-r from-blue-400 to-indigo-500', text: 'text-white' },
 };
 
 const layoutPreviews: Record<ProfileLayout, React.ReactNode> = {
@@ -185,9 +188,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: profile.name,
-      slug: profile.slug,
-      jobTitle: profile.jobTitle,
+      name: profile.name || '',
+      slug: profile.slug || '',
+      jobTitle: profile.jobTitle || '',
       logoUrl: profile.logoUrl || '',
       coverUrl: profile.coverUrl || '',
       content: profile.content || [],
@@ -201,9 +204,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         title: profile.vCard?.title || '',
         website: profile.vCard?.website || '',
       },
-      theme: profile.theme,
-      animatedBackground: profile.animatedBackground,
-      layout: profile.layout,
+      theme: profile.theme || 'default',
+      animatedBackground: profile.animatedBackground || 'none',
+      layout: profile.layout || 'default',
       isPublished: profile.isPublished || false,
       isVerified: profile.isVerified || false,
     },

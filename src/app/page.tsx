@@ -20,7 +20,7 @@ export default async function Home() {
       <main className="flex-1">
         <section className="relative w-full py-20 md:py-32 lg:py-40">
           <Image
-            src="https://picsum.photos/seed/prolink-hero/1200/800"
+            src={content.heroImageUrl || "https://picsum.photos/seed/prolink-hero/1200/800"}
             alt="Abstract background with purple and pink gradients representing digital connections."
             fill
             className="object-cover z-0"
@@ -43,10 +43,10 @@ export default async function Home() {
               </div>
               <div className="space-x-4">
                 <Button size="lg" asChild>
-                  <Link href="/dashboard">Get Started</Link>
+                  <Link href={content.heroButton1Link || '/dashboard'}>{content.heroButton1Text || 'Get Started'}</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/nour-al-huda">View Demo</Link>
+                  <Link href={content.heroButton2Link || '#'}>{content.heroButton2Text || 'Learn More'}</Link>
                 </Button>
               </div>
             </div>

@@ -18,6 +18,11 @@ import { Home, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logout } from '@/lib/actions';
 import { Icons } from '@/components/icons';
+import { useEffect, useState } from 'react';
+import type { HomepageContent } from '@/lib/types';
+import { getHomepageContent } from '@/lib/data-client';
+import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 export default function DashboardLayout({
   children,
@@ -25,6 +30,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [content, setContent] = useState<HomepageContent | null>(null);
+
+  useEffect(() => {
+    getHomepageContent().then(setContent);
+  }, []);
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
@@ -39,11 +49,23 @@ export default function DashboardLayout({
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="shrink-0" asChild>
               <Link href="/">
-                <Icons.Logo className="size-5 fill-current" />
+                {content ? (
+                   content.logoUrl ? (
+                    <Image src={content.logoUrl} alt={content.title} width={20} height={20} className="object-contain" />
+                  ) : (
+                    <Icons.Logo className="size-5 fill-current" />
+                  )
+                ) : (
+                  <Skeleton className="size-5 rounded-full" />
+                )}
               </Link>
             </Button>
             <div className="flex-1 overflow-hidden">
-                <p className="font-semibold text-lg truncate font-headline">ProLink</p>
+                {content ? (
+                  <p className="font-semibold text-lg truncate font-headline">{content.title}</p>
+                ) : (
+                  <Skeleton className="h-5 w-24" />
+                )}
             </div>
           </div>
         </SidebarHeader>
