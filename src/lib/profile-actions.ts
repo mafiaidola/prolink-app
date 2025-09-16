@@ -36,7 +36,11 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 
     const { data, error } = await supabase
         .from('profiles')
-        .update(updateData)
+        .update({
+            ...updateData,
+            content: updateData.content ?? [],
+            vCard: updateData.vCard ?? {},
+        })
         .eq('id', profileId)
         .select()
         .single();
@@ -75,11 +79,16 @@ export async function createProfile(newProfileData: Omit<Profile, 'id' | 'create
         ...newProfileData,
         logoUrl: newProfileData.logoUrl || `https://picsum.photos/seed/${newProfileData.slug}/200/200`,
         coverUrl: newProfileData.coverUrl || `https://picsum.photos/seed/${newProfileData.slug}-cover/800/300`,
+        isVerified: newProfileData.isVerified || false,
     };
 
     const { data, error } = await supabase
         .from('profiles')
-        .insert(newProfile)
+        .insert({
+            ...newProfile,
+            content: newProfile.content ?? [],
+            vCard: newProfile.vCard ?? {},
+        })
         .select()
         .single();
 
