@@ -1,4 +1,4 @@
-import { getProfileBySlug } from '@/lib/data';
+import { getProfileBySlug, getHomepageContent } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { AnimatedBackground } from '@/components/profile/animated-background';
 import { ProfileCard } from '@/components/profile/profile-card';
@@ -12,12 +12,18 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
     const profile = await getProfileBySlug(params.slug);
+    const content = await getHomepageContent();
+    
     if (!profile) {
       return { title: 'Profile Not Found' };
     }
+    
+    // Use a fallback for the description if profile.content is not available or the first block is not text
+    const description = profile.content?.find(c => c.type === 'text')?.text || 'A professional profile.';
+
     return {
-      title: `${profile.name} | ProLink`,
-      description: profile.bio,
+      title: `${profile.name} | ${content.title}`,
+      description: description,
     };
   }
 
