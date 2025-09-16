@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import type { AnimatedBackground as AnimatedBackgroundType } from '@/lib/types';
 import { useEffect } from 'react';
+import { DeepHoleBackground } from './deep-hole-background';
 
 const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
   useEffect(() => {
@@ -16,6 +17,11 @@ const AnimatedBackground = ({ type }: { type: AnimatedBackgroundType }) => {
   }, [type]);
 
   if (type === 'none' || !type) return null;
+  
+  if (type === 'deep-hole') {
+    return <DeepHoleBackground />;
+  }
+
 
   return (
     <div className={cn('absolute inset-0 -z-10 overflow-hidden', `bg-anim-${type}`)}>

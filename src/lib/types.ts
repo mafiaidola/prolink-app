@@ -31,7 +31,8 @@ export type AnimatedBackground =
   | 'aurora'
   | 'lines'
   | 'cells'
-  | 'circles';
+  | 'circles'
+  | 'deep-hole';
 
 export type ProfileLayout = 
   | 'default' 

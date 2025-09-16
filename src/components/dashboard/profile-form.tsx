@@ -99,7 +99,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const themes: Theme[] = ['default', 'modern', 'classic', 'glass', 'neon', 'minimal', 'retro', 'dark', 'corporate', 'artistic', 'tech', 'sunset', 'forest', 'oceanic'];
-const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles'];
+const backgrounds: AnimatedBackground[] = ['none', 'particles', 'waves', 'stars', 'electric', 'gradient', 'aurora', 'lines', 'cells', 'circles', 'deep-hole'];
 const layouts: ProfileLayout[] = ['default', 'stacked', 'minimalist-center', 'modern-split', 'minimalist-left-align'];
 
 const themePreviews: Record<Theme, { bg: string, text: string }> = {
@@ -878,3 +878,4 @@ function SkillsSubForm({ form, contentIndex }: { form: any, contentIndex: number
     
 
     
+
