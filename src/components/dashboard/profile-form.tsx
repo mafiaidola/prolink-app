@@ -85,8 +85,8 @@ const profileSchema = z.object({
   jobTitle: z.string().min(2, 'Job title is required'),
   logoUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
   coverUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
-  content: z.array(contentBlockSchema),
-  links: z.array(linkSchema),
+  content: z.array(contentBlockSchema).optional(),
+  links: z.array(linkSchema).optional(),
   vCard: vCardSchema.optional(),
   theme: z.string(),
   animatedBackground: z.string(),
@@ -119,7 +119,7 @@ const layoutPreviews: Record<ProfileLayout, React.ReactNode> = {
     'default': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="20" y="55" width="60" height="8" rx="4"/><rect x="30" y="70" width="40" height="6" rx="3"/></svg>,
     'stacked': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="20" y="55" width="60" height="8" rx="4"/><rect x="20" y="70" width="60" height="6" rx="3"/></svg>,
     'minimalist-center': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="30" r="18"/><rect x="30" y="55" width="40" height="8" rx="4"/><rect x="40" y="70" width="20" height="6" rx="3"/></svg>,
-    'modern-split': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="25" cy="50" r="15"/><rect x="50" y="40" width="40" height="8" rx="4"/><rect x="50" y="55" width="30" height="6" rx="3"/></svg>,
+    'modern-split': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><rect x="5" y="5" width="35" height="90" rx="4" /><rect x="45" y="25" width="50" height="8" rx="4" /><rect x="45" y="40" width="50" height="6" rx="3" /><rect x="45" y="55" width="50" height="6" rx="3" /></svg>,
     'minimalist-left-align': <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor"><circle cx="25" cy="25" r="15"/><rect x="10" y="50" width="80" height="8" rx="4"/><rect x="10" y="65" width="60" height="6" rx="3"/></svg>,
 };
 
@@ -156,7 +156,7 @@ function ChoiceCards<T extends string>({ options, value, onChange, previews, ren
                                     {preview}
                                 </div>
                             )}
-                            {renderType === 'animation' && option !== 'none' && <AnimatedBackgroundPreview type={option as AnimatedBackground} />}
+                             {renderType === 'animation' && option !== 'none' ? <AnimatedBackgroundPreview type={option as AnimatedBackground} /> : renderType === 'animation' && <span>None</span>}
                         </div>
                         <p className="mt-2 text-center text-xs font-medium capitalize">{option.replace('-', ' ')}</p>
                         {value === option && (
@@ -223,9 +223,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     
-    const profileData = {
+    const profileData: Partial<Profile> = {
         ...data,
-        content: data.content.map(block => ({
+        content: data.content?.map(block => ({
             ...block,
             level: block.level || undefined,
             text: block.text || undefined,
@@ -239,7 +239,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
     try {
       if (isNewProfile) {
-        const newProfile = await createProfile({ ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, links: data.links || [], vCard: data.vCard });
+        const newProfile = await createProfile(profileData as Omit<Profile, 'id' | 'createdAt'>);
         toast({
           title: 'Profile Created',
           description: 'Your new profile has been created successfully.',
@@ -247,7 +247,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         router.push(`/dashboard/edit/${newProfile.slug}`);
         router.refresh();
       } else {
-        const updated: Profile = { ...profile, ...profileData, theme: data.theme as Theme, animatedBackground: data.animatedBackground as AnimatedBackground, layout: data.layout as ProfileLayout, vCard: data.vCard };
+        const updated: Profile = { ...profile, ...profileData, id: profile.id };
         await updateProfile(updated);
         toast({
           title: 'Profile Saved',

@@ -43,24 +43,24 @@ export type ContentBlockBase = {
 
 export type HeadingBlock = ContentBlockBase & {
   type: 'heading';
-  text: string;
-  level: 'h1' | 'h2' | 'h3';
+  text?: string;
+  level?: 'h1' | 'h2' | 'h3';
 };
 
 export type TextBlock = ContentBlockBase & {
   type: 'text';
-  text: string;
+  text?: string;
 };
 
 export type ImageBlock = ContentBlockBase & {
   type: 'image';
-  url: string;
-  alt: string;
+  url?: string;
+  alt?: string;
 };
 
 export type QuoteBlock = ContentBlockBase & {
   type: 'quote';
-  text: string;
+  text?: string;
   author?: string;
 };
 
@@ -71,20 +71,20 @@ export type Skill = {
 
 export type SkillsBlock = ContentBlockBase & {
     type: 'skills';
-    title: string;
-    skills: Skill[];
+    title?: string;
+    skills?: Skill[];
 };
 
 export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock | SkillsBlock;
 
 export type VCard = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-  title: string;
-  website: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  title?: string;
+  website?: string;
 };
 
 export type Profile = {
@@ -99,8 +99,8 @@ export type Profile = {
   layout: ProfileLayout;
   isPublished: boolean;
   isVerified: boolean;
-  content: ContentBlock[];
-  links: Link[];
+  content?: ContentBlock[];
+  links?: Link[];
   vCard?: VCard;
   createdAt?: string; // Supabase adds this
 };

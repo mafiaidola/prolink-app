@@ -11,7 +11,7 @@ import { useApp } from '@/components/providers';
 import { cn } from '@/lib/utils';
 import { translations } from '@/lib/translations';
 import Image from 'next/image';
-import { BadgeCheck, MessageSquare, Download } from 'lucide-react';
+import { BadgeCheck, Download, MessageSquare } from 'lucide-react';
 import VCard from 'vcard-creator';
 import { Progress } from '../ui/progress';
 
@@ -155,7 +155,7 @@ const VCardButton = ({ profile, theme }: { profile: Profile, theme: any }) => {
 const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selectedTheme: any }) => {
     switch (block.type) {
         case 'heading':
-            const HeadingTag = block.level as keyof JSX.IntrinsicElements;
+            const HeadingTag = block.level as keyof JSX.IntrinsicElements || 'h2';
             return <HeadingTag className={cn('font-headline', {
                 'text-2xl': HeadingTag === 'h1',
                 'text-xl': HeadingTag === 'h2',
@@ -181,7 +181,7 @@ const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selected
                 <div>
                     <h3 className={cn("text-lg font-headline mb-3", selectedTheme.cardTitle)}>{skillsBlock.title}</h3>
                     <div className="space-y-3">
-                        {skillsBlock.skills.map((skill, index) => (
+                        {skillsBlock.skills?.map((skill, index) => (
                             <div key={index}>
                                 <div className="flex justify-between items-center mb-1 text-sm">
                                     <span>{skill.name}</span>
@@ -226,7 +226,7 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
                     <Separator className={cn("my-4", selectedTheme.separator)} />
                     <div className="flex flex-col space-y-3">
                         <VCardButton profile={profile} theme={selectedTheme} />
-                        {profile.links.map((link) => (
+                        {profile.links?.map((link) => (
                             <Button
                                 key={link.id}
                                 variant={selectedTheme.button as any}
@@ -273,7 +273,7 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
             {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <div className="flex flex-col space-y-3 mt-6">
                     <VCardButton profile={profile} theme={selectedTheme} />
-                    {profile.links.map((link) => (
+                    {profile.links?.map((link) => (
                         <Button
                             key={link.id}
                             variant={selectedTheme.button as any}
@@ -312,8 +312,8 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
             <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                  {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                     <div className="flex flex-wrap justify-center items-center gap-3 mt-4">
-                        <VCardButton profile={profile} theme={selectedTheme} />
-                        {profile.links.map((link) => (
+                         {(profile.vCard && profile.vCard.firstName) && <div className="w-full"><VCardButton profile={profile} theme={selectedTheme} /></div>}
+                        {profile.links?.map((link) => (
                              <Button
                                 key={link.id}
                                 variant={'ghost'}
@@ -357,7 +357,7 @@ const ModernSplitLayout = ({ profile, selectedTheme, t }: { profile: Profile; se
                     <Separator className={cn("my-4 w-full", selectedTheme.separator)} />
                     <div className="flex flex-col space-y-3 w-full">
                         <VCardButton profile={profile} theme={selectedTheme} />
-                        {profile.links.map((link) => (
+                        {profile.links?.map((link) => (
                             <Button
                                 key={link.id}
                                 variant={selectedTheme.button as any}
@@ -408,7 +408,7 @@ const MinimalistLeftAlignLayout = ({ profile, selectedTheme, t }: { profile: Pro
             {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <div className="flex flex-col space-y-3 mt-6">
                     <VCardButton profile={profile} theme={selectedTheme} />
-                    {profile.links.map((link) => (
+                    {profile.links?.map((link) => (
                         <Button
                             key={link.id}
                             variant={selectedTheme.button as any}
