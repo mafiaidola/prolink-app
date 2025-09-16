@@ -9,8 +9,8 @@ type Props = {
     params: { slug: string };
 };
 
-export default async function EditProfilePage({ params }: Props) {
-    const profile = await getProfileBySlug(params.slug);
+export default async function EditProfilePage({ params: { slug } }: Props) {
+    const profile = await getProfileBySlug(slug);
 
     if (!profile) {
         notFound();

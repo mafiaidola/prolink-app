@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '4.5mb',
     },
+    allowedDevOrigins: ["http://localhost:6000", "http://localhost:3000"],
   },
   typescript: {
     ignoreBuildErrors: true,
