@@ -1,6 +1,6 @@
 'use client';
 
-import type { Profile, ContentBlock, HeadingBlock, TextBlock, ImageBlock, QuoteBlock, SkillsBlock } from '@/lib/types';
+import type { Profile, ContentBlock, ProductSliderBlock, LogoCarouselBlock, SkillsBlock } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +9,12 @@ import * as LucideIcons from 'lucide-react';
 import Link from 'next/link';
 import { useApp } from '@/components/providers';
 import { cn } from '@/lib/utils';
-import { translations } from '@/lib/translations';
 import Image from 'next/image';
 import { BadgeCheck, Download, MessageSquare } from 'lucide-react';
 import VCard from 'vcard-creator';
 import { Progress } from '../ui/progress';
+import { ProductSlider } from './product-slider';
+import { LogoCarousel } from './logo-carousel';
 
 const themeStyles = {
   default: {
@@ -217,12 +218,18 @@ const BlockRenderer = ({ block, selectedTheme }: { block: ContentBlock; selected
                     </div>
                 </div>
             );
+         case 'product-slider':
+            const sliderBlock = block as ProductSliderBlock;
+            return <ProductSlider block={sliderBlock} selectedTheme={selectedTheme} />;
+        case 'logo-carousel':
+            const carouselBlock = block as LogoCarouselBlock;
+            return <LogoCarousel block={carouselBlock} selectedTheme={selectedTheme} />;
         default:
             return null;
     }
 };
 
-const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+const DefaultLayout = ({ profile, selectedTheme }: { profile: Profile; selectedTheme: any; }) => (
     <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
         {profile.coverUrl && (
             <div className="relative h-36">
@@ -270,7 +277,7 @@ const DefaultLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
     </Card>
 );
 
-const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+const StackedLayout = ({ profile, selectedTheme }: { profile: Profile; selectedTheme: any; }) => (
     <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden", selectedTheme.card)}>
         {profile.coverUrl && (
             <div className="relative h-36">
@@ -316,7 +323,7 @@ const StackedLayout = ({ profile, selectedTheme, t }: { profile: Profile; select
     </Card>
 );
 
-const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+const MinimalistCenterLayout = ({ profile, selectedTheme }: { profile: Profile; selectedTheme: any; }) => (
     <div className="w-full max-w-md mx-auto z-10 flex flex-col items-center justify-center min-h-full text-center p-4">
         <Card className={cn("w-full transition-all duration-300 !bg-transparent !shadow-none !border-none", selectedTheme.card)}>
             <CardHeader className="items-center text-center pt-6">
@@ -358,7 +365,7 @@ const MinimalistCenterLayout = ({ profile, selectedTheme, t }: { profile: Profil
     </div>
 );
 
-const ModernSplitLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+const ModernSplitLayout = ({ profile, selectedTheme }: { profile: Profile; selectedTheme: any; }) => (
     <Card className={cn("w-full max-w-4xl mx-auto z-10 shadow-2xl transition-all duration-300 overflow-hidden md:grid md:grid-cols-3", selectedTheme.card)}>
         <div className="md:col-span-1 md:border-r md:border-border/50 p-6 flex flex-col items-center text-center">
             {profile.coverUrl && (
@@ -406,7 +413,7 @@ const ModernSplitLayout = ({ profile, selectedTheme, t }: { profile: Profile; se
     </Card>
 );
 
-const MinimalistLeftAlignLayout = ({ profile, selectedTheme, t }: { profile: Profile; selectedTheme: any; t: any; }) => (
+const MinimalistLeftAlignLayout = ({ profile, selectedTheme }: { profile: Profile; selectedTheme: any; }) => (
     <Card className={cn("w-full max-w-md mx-auto z-10 shadow-2xl transition-all duration-300", selectedTheme.card)}>
         <CardContent className="p-6 md:p-8">
             <div className="flex items-center gap-4">
@@ -464,8 +471,7 @@ export function ProfileCard({ profile }: { profile: Profile }) {
   const { language } = useApp();
   
   const selectedTheme = themeStyles[profile.theme] || themeStyles.default;
-  const t = translations[language];
   const LayoutComponent = layouts[profile.layout] || layouts.default;
 
-  return <LayoutComponent profile={profile} selectedTheme={selectedTheme} t={t} />;
+  return <LayoutComponent profile={profile} selectedTheme={selectedTheme} />;
 }

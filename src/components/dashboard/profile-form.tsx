@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical, BarChart, Check, Paintbrush, Sparkles, LayoutTemplate } from 'lucide-react';
+import { Trash, PlusCircle, Wand2, Loader2, QrCode, Pilcrow, Type, Image as ImageIcon, MessageSquareQuote, GripVertical, BarChart, Check, Paintbrush, Sparkles, LayoutTemplate, Copy, Presentation } from 'lucide-react';
 import { createProfile, updateProfile } from '@/lib/profile-actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -57,16 +57,31 @@ const skillSchema = z.object({
     level: z.number().min(0).max(100),
 });
 
+const productSlideSchema = z.object({
+  id: z.string(),
+  imageUrl: z.string().url("Must be a valid URL"),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+});
+
+const logoSchema = z.object({
+    id: z.string(),
+    imageUrl: z.string().url("Must be a valid URL"),
+    alt: z.string().min(1, "Alt text is required"),
+});
+
 const contentBlockSchema = z.object({
     id: z.string(),
-    type: z.enum(['heading', 'text', 'image', 'quote', 'skills']),
+    type: z.enum(['heading', 'text', 'image', 'quote', 'skills', 'product-slider', 'logo-carousel']),
     text: z.string().optional(),
     level: z.enum(['h1', 'h2', 'h3']).optional(),
     url: z.string().optional(),
     alt: z.string().optional(),
     author: z.string().optional(),
-    title: z.string().optional(), // For skills block
+    title: z.string().optional(), // For skills, sliders, carousels
     skills: z.array(skillSchema).optional(),
+    slides: z.array(productSlideSchema).optional(),
+    logos: z.array(logoSchema).optional(),
 });
 
 const vCardSchema = z.object({
@@ -246,6 +261,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             author: block.author || undefined,
             title: block.title || undefined,
             skills: block.skills || undefined,
+            slides: block.slides || undefined,
+            logos: block.logos || undefined,
         }))
     };
 
@@ -290,7 +307,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     }
   };
 
-  const addBlock = (type: 'heading' | 'text' | 'image' | 'quote' | 'skills') => {
+  const addBlock = (type: 'heading' | 'text' | 'image' | 'quote' | 'skills' | 'product-slider' | 'logo-carousel') => {
     const newBlock: any = { id: new Date().toISOString(), type };
     switch (type) {
         case 'heading':
@@ -311,6 +328,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         case 'skills':
             newBlock.title = 'My Skills';
             newBlock.skills = [{ name: 'Teamwork', level: 80 }];
+            break;
+        case 'product-slider':
+            newBlock.title = 'My Products';
+            newBlock.slides = [{ id: new Date().toISOString(), imageUrl: 'https://picsum.photos/seed/product1/600/400', title: 'Product 1', description: 'This is a great product.' }];
+            break;
+        case 'logo-carousel':
+            newBlock.title = 'Companies I\'ve worked with';
+            newBlock.logos = [{ id: new Date().toISOString(), imageUrl: 'https://cdn.simpleicons.org/google/white', alt: 'Google' }];
             break;
     }
     appendContent(newBlock);
@@ -512,6 +537,40 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                                 <SkillsSubForm form={form} contentIndex={index} />
                                             </div>
                                         )}
+                                        {field.type === 'product-slider' && (
+                                            <div className="space-y-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.title`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Product Slider Title</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormLabel>Slides</FormLabel>
+                                                <ProductSliderSubForm form={form} contentIndex={index} />
+                                            </div>
+                                        )}
+                                        {field.type === 'logo-carousel' && (
+                                            <div className="space-y-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`content.${index}.title`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Logo Carousel Title</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormLabel>Logos</FormLabel>
+                                                <LogoCarouselSubForm form={form} contentIndex={index} />
+                                            </div>
+                                        )}
                                     </div>
                                 </SortableItem>
                             ))}
@@ -524,6 +583,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('image')}><ImageIcon className="mr-2 h-4 w-4" /> Add Image</Button>
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('quote')}><MessageSquareQuote className="mr-2 h-4 w-4" /> Add Quote</Button>
                     <Button type="button" variant="outline" size="sm" onClick={() => addBlock('skills')}><BarChart className="mr-2 h-4 w-4" /> Add Skills</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('product-slider')}><Presentation className="mr-2 h-4 w-4" /> Add Product Slider</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addBlock('logo-carousel')}><Copy className="mr-2 h-4 w-4" /> Add Logo Carousel</Button>
                 </div>
             </CardContent>
           </Card>
@@ -875,7 +936,102 @@ function SkillsSubForm({ form, contentIndex }: { form: any, contentIndex: number
     );
 }
 
+function ProductSliderSubForm({ form, contentIndex }: { form: any, contentIndex: number }) {
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: `content.${contentIndex}.slides`
+    });
+
+    return (
+        <div className="space-y-4 pl-4 border-l-2">
+            {fields.map((slide, slideIndex) => (
+                <div key={slide.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="absolute top-2 right-2">
+                        <Button type="button" size="icon" variant="destructive-ghost" className="h-7 w-7" onClick={() => remove(slideIndex)}>
+                            <Trash className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.slides.${slideIndex}.imageUrl`}
+                        render={({ field }) => (
+                            <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.slides.${slideIndex}.title`}
+                        render={({ field }) => (
+                            <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.slides.${slideIndex}.description`}
+                        render={({ field }) => (
+                            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                    />
+                </div>
+            ))}
+             <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => append({ id: new Date().toISOString(), imageUrl: '', title: '', description: '' })}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Slide
+            </Button>
+        </div>
+    );
+}
+
+function LogoCarouselSubForm({ form, contentIndex }: { form: any, contentIndex: number }) {
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: `content.${contentIndex}.logos`
+    });
+
+    return (
+        <div className="space-y-4 pl-4 border-l-2">
+            {fields.map((logo, logoIndex) => (
+                <div key={logo.id} className="flex gap-4 items-end">
+                    <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.logos.${logoIndex}.imageUrl`}
+                        render={({ field }) => (
+                            <FormItem className="flex-grow"><FormLabel>Logo Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`content.${contentIndex}.logos.${logoIndex}.alt`}
+                        render={({ field }) => (
+                            <FormItem className="flex-grow"><FormLabel>Logo Name (Alt)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                    />
+                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(logoIndex)}>
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </div>
+            ))}
+             <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => append({ id: new Date().toISOString(), imageUrl: '', alt: '' })}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Logo
+            </Button>
+        </div>
+    );
+}
     
 
     
+
 

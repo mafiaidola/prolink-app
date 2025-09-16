@@ -79,7 +79,33 @@ export type SkillsBlock = ContentBlockBase & {
     skills?: Skill[];
 };
 
-export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock | SkillsBlock;
+export type ProductSlide = {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+};
+
+export type ProductSliderBlock = ContentBlockBase & {
+  type: 'product-slider';
+  title?: string;
+  slides: ProductSlide[];
+};
+
+export type Logo = {
+  id: string;
+  imageUrl: string;
+  alt: string;
+};
+
+export type LogoCarouselBlock = ContentBlockBase & {
+  type: 'logo-carousel';
+  title?: string;
+  logos: Logo[];
+};
+
+
+export type ContentBlock = HeadingBlock | TextBlock | ImageBlock | QuoteBlock | SkillsBlock | ProductSliderBlock | LogoCarouselBlock;
 
 export type VCard = {
   firstName?: string;
