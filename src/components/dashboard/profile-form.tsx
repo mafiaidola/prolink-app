@@ -375,7 +375,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-4">
-                    <DndContext 
+                    <DndContext
+                        id="profile-content-dnd"
                         collisionDetection={closestCenter}
                         onDragEnd={handleDragEnd}
                     >
@@ -870,5 +871,7 @@ function SkillsSubForm({ form, contentIndex }: { form: any, contentIndex: number
         </div>
     );
 }
+
+    
 
     
