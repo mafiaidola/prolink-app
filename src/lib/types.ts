@@ -32,7 +32,9 @@ export type AnimatedBackground =
   | 'lines'
   | 'cells'
   | 'circles'
-  | 'deep-hole';
+  | 'deep-hole'
+  | 'solaris'
+  | 'star-wars';
 
 export type ProfileLayout = 
   | 'default' 
