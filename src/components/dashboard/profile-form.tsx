@@ -240,9 +240,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   function handleDragEnd(event: DragEndEvent) {
     const {active, over} = event;
     
-    if (active.id !== over?.id) {
+    if (over && active.id !== over.id) {
         const oldIndex = contentFields.findIndex((field) => field.id === active.id);
-        const newIndex = contentFields.findIndex((field) => field.id === over!.id);
+        const newIndex = contentFields.findIndex((field) => field.id === over.id);
         moveContent(oldIndex, newIndex);
     }
   }
@@ -955,21 +955,21 @@ function ProductSliderSubForm({ form, contentIndex }: { form: any, contentIndex:
                         control={form.control}
                         name={`content.${contentIndex}.slides.${slideIndex}.imageUrl`}
                         render={({ field }) => (
-                            <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )}
                     />
                      <FormField
                         control={form.control}
                         name={`content.${contentIndex}.slides.${slideIndex}.title`}
                         render={({ field }) => (
-                            <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )}
                     />
                      <FormField
                         control={form.control}
                         name={`content.${contentIndex}.slides.${slideIndex}.description`}
                         render={({ field }) => (
-                            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )}
                     />
                 </div>
@@ -1002,14 +1002,14 @@ function LogoCarouselSubForm({ form, contentIndex }: { form: any, contentIndex: 
                         control={form.control}
                         name={`content.${contentIndex}.logos.${logoIndex}.imageUrl`}
                         render={({ field }) => (
-                            <FormItem className="flex-grow"><FormLabel>Logo Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem className="flex-grow"><FormLabel>Logo Image URL</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )}
                     />
                     <FormField
                         control={form.control}
                         name={`content.${contentIndex}.logos.${logoIndex}.alt`}
                         render={({ field }) => (
-                            <FormItem className="flex-grow"><FormLabel>Logo Name (Alt)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem className="flex-grow"><FormLabel>Logo Name (Alt)</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )}
                     />
                     <Button type="button" variant="destructive" size="icon" onClick={() => remove(logoIndex)}>
@@ -1033,5 +1033,6 @@ function LogoCarouselSubForm({ form, contentIndex }: { form: any, contentIndex: 
     
 
     
+
 
 
