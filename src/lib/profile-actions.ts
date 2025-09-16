@@ -36,11 +36,7 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 
     const { data, error } = await supabase
         .from('profiles')
-        .update({
-            ...updateData,
-            content: updateData.content ?? [],
-            vCard: updateData.vCard ?? {},
-        })
+        .update(updateData) // Pass the whole updateData object which now correctly includes content and vCard
         .eq('id', profileId)
         .select()
         .single();
@@ -84,11 +80,7 @@ export async function createProfile(newProfileData: Omit<Profile, 'id' | 'create
 
     const { data, error } = await supabase
         .from('profiles')
-        .insert({
-            ...newProfile,
-            content: newProfile.content ?? [],
-            vCard: newProfile.vCard ?? {},
-        })
+        .insert(newProfile) // Pass the whole newProfile object
         .select()
         .single();
 
