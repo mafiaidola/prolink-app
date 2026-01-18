@@ -5,8 +5,13 @@ import type { SessionPayload } from '@/lib/types';
 import { createCipheriv, createDecipheriv, scryptSync } from 'crypto';
 import { redirect } from 'next/navigation';
 
-const SECRET_KEY = process.env.SESSION_SECRET_KEY || 'a-super-secret-key-that-is-at-least-32-bytes-long';
-const password = 'password-for-scrypt';
+// Ensure the secret key is set in environment variables
+const SECRET_KEY = process.env.SESSION_SECRET_KEY;
+if (!SECRET_KEY) {
+  throw new Error('SESSION_SECRET_KEY is not set in environment variables.');
+}
+
+const password = 'password-for-scrypt'; // This can remain as it's for key derivation, not a secret itself.
 
 // Prepare encryption key
 const key = scryptSync(password, 'salt', 32);

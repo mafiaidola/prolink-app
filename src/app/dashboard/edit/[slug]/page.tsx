@@ -1,5 +1,5 @@
 import { ProfileForm } from "@/components/dashboard/profile-form";
-import { getProfileBySlug } from "@/lib/data";
+import { getProfileForAdmin } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default async function EditProfilePage({ params: { slug } }: Props) {
-    const profile = await getProfileBySlug(slug);
+    const profile = await getProfileForAdmin(slug);
 
     if (!profile) {
         notFound();

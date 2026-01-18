@@ -4,7 +4,11 @@ import { createSession, deleteSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MoEP1337';
+// Ensure the admin password is set in environment variables
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+if (!ADMIN_PASSWORD) {
+  throw new Error('ADMIN_PASSWORD is not set in environment variables.');
+}
 
 const loginSchema = z.object({
   password: z.string().min(1, { message: 'Password is required' }),

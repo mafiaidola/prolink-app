@@ -2,16 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import type { Profile } from './types';
-import { createClient } from './supabase';
+import { createAdminClient } from './supabase-admin';
 
 export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
-    const supabase = createClient();
-    if (!supabase) {
-      console.warn("Supabase client not initialized. Cannot update profile.");
-      // In a real scenario, you might want to return the object to avoid breaking the UI
-      // but indicate that the save was not successful. For this demo, we'll throw.
-      throw new Error("Database not connected. Please configure Supabase credentials.");
-    }
+    const supabase = createAdminClient();
 
     const profileId = updatedProfile.id;
     if (!profileId) {
@@ -36,7 +30,7 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 
     const { data, error } = await supabase
         .from('profiles')
-        .update(updateData) // Pass the whole updateData object which now correctly includes content and vCard
+        .update(updateData)
         .eq('id', profileId)
         .select()
         .single();
@@ -54,11 +48,7 @@ export async function updateProfile(updatedProfile: Profile): Promise<Profile> {
 };
 
 export async function createProfile(newProfileData: Omit<Profile, 'id' | 'createdAt'>): Promise<Profile> {
-    const supabase = createClient();
-    if (!supabase) {
-      console.warn("Supabase client not initialized. Cannot create profile.");
-      throw new Error("Database not connected. Please configure Supabase credentials.");
-    }
+    const supabase = createAdminClient();
 
     // Check if slug is already in use
     const { data: existing } = await supabase
@@ -80,7 +70,7 @@ export async function createProfile(newProfileData: Omit<Profile, 'id' | 'create
 
     const { data, error } = await supabase
         .from('profiles')
-        .insert(newProfile) // Pass the whole newProfile object
+        .insert(newProfile)
         .select()
         .single();
 

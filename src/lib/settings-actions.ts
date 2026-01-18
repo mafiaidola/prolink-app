@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import type { HomepageContent, Feature } from './types';
 import { revalidatePath } from 'next/cache';
-import { createClient } from './supabase';
+import { createAdminClient } from './supabase-admin';
 
 const featureSchema = z.object({
     icon: z.string().min(1, "Icon is required."),
@@ -33,10 +33,7 @@ export type SettingsState = {
 };
 
 export async function saveSettings(prevState: SettingsState, formData: FormData): Promise<SettingsState> {
-    const supabase = createClient();
-    if (!supabase) {
-        return { error: "Application is not connected to the database. Please check configuration." };
-    }
+    const supabase = createAdminClient();
 
     const rawData = Object.fromEntries(formData.entries());
     

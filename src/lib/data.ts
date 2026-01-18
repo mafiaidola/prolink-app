@@ -1,9 +1,11 @@
 import type { Profile, HomepageContent } from '@/lib/types';
-import { createClient } from '@/lib/supabase';
+import { createClient as createPublicClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase-admin';
+import 'server-only';
 
 const fallbackProfiles: Profile[] = [
     {
-        "id": "1",
+        "id": "nour-al-huda",
         "slug": "nour-al-huda",
         "name": "Nour Al-Huda",
         "jobTitle": "Digital Marketing Specialist",
@@ -22,56 +24,48 @@ const fallbackProfiles: Profile[] = [
         "links": [{"id": "linkedin", "title": "LinkedIn Profile", "url": "https://linkedin.com/in/nour-al-huda", "icon": "https://cdn.simpleicons.org/linkedin/white"}, {"id": "twitter", "title": "Twitter / X", "url": "https://x.com/nour", "icon": "https://cdn.simpleicons.org/x/white"}, {"id": "website", "title": "Personal Website", "url": "https://nour.dev", "icon": "https://cdn.simpleicons.org/website/white"}],
         "vCard": { "firstName": "Nour", "lastName": "Al-Huda", "email": "contact@nour.dev", "phone": "+1987654321", "company": "Creative Solutions", "title": "Digital Marketing Specialist", "website": "https://nour.dev" }
     },
-    {
-        "id": "2",
-        "slug": "ahmed-khan",
-        "name": "Ahmed Khan",
-        "jobTitle": "Senior Frontend Developer",
-        "logoUrl": "https://picsum.photos/seed/ahmed-khan/200/200",
-        "coverUrl": "https://picsum.photos/seed/ahmed-khan-cover/800/300",
-        "theme": "tech",
-        "animatedBackground": "lines",
-        "layout": "stacked",
-        "isPublished": true,
-        "isVerified": false,
-        "content": [
-            { "id": "bio-2", "type": "text", "text": "Building beautiful and performant user interfaces with React and Next.js. Lover of clean code and good coffee." },
-            { "id": "quote-1", "type": "quote", "text": "Code is like humor. When you have to explain it, it’s bad.", "author": "Cory House" }
-        ],
-        "links": [{"id": "github", "title": "GitHub Profile", "url": "https://github.com/ahmed-khan", "icon": "https://cdn.simpleicons.org/github/white"}, {"id": "portfolio", "title": "Portfolio", "url": "https://ahmed-khan-portfolio.com", "icon": "https://cdn.simpleicons.org/briefcase/white"}],
-        "vCard": { "firstName": "Ahmed", "lastName": "Khan", "email": "ahmed@example.com" }
-    }
 ];
 
-// Helper function to read profiles from Supabase
+// Fetches ALL profiles (published and drafts). For admin dashboard use ONLY.
 export const getProfiles = async (): Promise<Profile[]> => {
-    const supabase = createClient();
-    if (!supabase) return fallbackProfiles;
-
+    const supabase = createAdminClient();
     const { data, error } = await supabase.from('profiles').select('*').order('name');
     if (error) {
-        console.warn('Error fetching profiles, returning fallback. Supabase error:', error.message);
+        console.warn('Admin fetch: Error fetching profiles, returning fallback. Supabase error:', error.message);
         return fallbackProfiles;
     }
     return data as Profile[];
 };
 
-// Helper function to read a single profile by slug from Supabase
+// Fetches a single PUBLISHED profile by slug. For public page use.
 export const getProfileBySlug = async (slug: string): Promise<Profile | undefined> => {
-    const supabase = createClient();
+    const supabase = createPublicClient();
     if (!supabase) {
-        return fallbackProfiles.find(p => p.slug === slug);
+        return fallbackProfiles.find(p => p.slug === slug && p.isPublished);
     }
 
-    const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).single();
+    const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).eq('isPublished', true).single();
     if (error) {
-        console.warn(`Error fetching profile for slug "${slug}", returning fallback. Supabase error:`, error.message);
-        return fallbackProfiles.find(p => p.slug === slug);
+        // This is expected if a profile is not found or not published. Don't log as a major warning.
+        return undefined;
     }
     return data as Profile;
 };
 
-// Helper function to read homepage content from Supabase
+// Fetches a single profile by slug, regardless of published status. For admin dashboard use ONLY.
+export const getProfileForAdmin = async (slug: string): Promise<Profile | undefined> => {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.from('profiles').select('*').eq('slug', slug).single();
+
+    if (error) {
+        console.error(`Admin fetch: Error fetching profile for slug "${slug}". Supabase error:`, error.message);
+        // Don't return fallback data for admin, as it could be misleading.
+        return undefined;
+    }
+    return data as Profile;
+};
+
+// Helper function to read homepage content from Supabase. Can be used by public and admin.
 export const getHomepageContent = async (): Promise<HomepageContent> => {
     const fallbackContent: HomepageContent = {
         title: 'ProLink',
@@ -92,7 +86,7 @@ export const getHomepageContent = async (): Promise<HomepageContent> => {
         heroButton2Link: '/nour-al-huda',
     };
     
-    const supabase = createClient();
+    const supabase = createPublicClient();
     if (!supabase) return fallbackContent;
 
     const { data, error } = await supabase.from('homepage_content').select('*').eq('id', 1).single();
