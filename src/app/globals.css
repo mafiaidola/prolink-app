@@ -79,21 +79,131 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Gradient text animation */
+/* Gradient text animations - Multiple dramatic styles */
+
+/* Standard smooth gradient shift */
 @keyframes gradient-shift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
 }
 
+/* Slow dramatic shimmer effect */
+@keyframes gradient-shimmer {
+  0% {
+    background-position: -200% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Pulsing glow effect */
+@keyframes gradient-pulse {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+
+  25% {
+    background-position: 50% 50%;
+    filter: brightness(1.2);
+  }
+
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1);
+  }
+
+  75% {
+    background-position: 50% 50%;
+    filter: brightness(1.3);
+  }
+}
+
+/* Fast energetic flow */
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  25% {
+    background-position: 100% 0%;
+  }
+
+  50% {
+    background-position: 100% 100%;
+  }
+
+  75% {
+    background-position: 0% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Rainbow wave */
+@keyframes gradient-wave {
+  0% {
+    background-position: 0% 50%;
+    transform: scale(1);
+  }
+
+  33% {
+    background-position: 100% 50%;
+    transform: scale(1.01);
+  }
+
+  66% {
+    background-position: 50% 100%;
+    transform: scale(0.99);
+  }
+
+  100% {
+    background-position: 0% 50%;
+    transform: scale(1);
+  }
+}
+
+/* Animation classes */
 .animate-gradient-shift {
-  animation: gradient-shift 3s ease infinite;
+  animation: gradient-shift 4s ease-in-out infinite;
+  background-size: 300% 300%;
+}
+
+.animate-gradient-shimmer {
+  animation: gradient-shimmer 6s linear infinite;
+  background-size: 400% 100%;
+}
+
+.animate-gradient-pulse {
+  animation: gradient-pulse 3s ease-in-out infinite;
+  background-size: 300% 300%;
+}
+
+.animate-gradient-flow {
+  animation: gradient-flow 5s ease infinite;
+  background-size: 200% 200%;
+}
+
+.animate-gradient-wave {
+  animation: gradient-wave 4s ease-in-out infinite;
+  background-size: 300% 300%;
 }

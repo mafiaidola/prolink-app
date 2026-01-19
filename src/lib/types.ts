@@ -164,19 +164,23 @@ export type NameGradient =
   | 'fire'     // Red → Orange → Yellow
   | 'royal'    // Purple → Blue → Pink
   | 'matrix'   // Dark Green → Bright Green
-  // New presets
-  | 'candy'    // Pink → Purple → Pink
+  | 'candy'    // Pink → Purple → Cyan
   | 'cyber'    // Cyan → Magenta → Yellow
   | 'nature'   // Green → Teal → Blue
   | 'cherry'   // Red → Pink → Rose
-  | 'midnight' // Dark Blue → Purple → Dark Blue
-  | 'bronze'   // Brown → Gold → Brown
+  | 'midnight' // Dark Blue → Purple → Lavender
+  | 'bronze'   // Brown → Gold → Amber
   | 'silver'   // Gray → White → Gray
   | 'rainbow'  // Full spectrum
-  | 'peach'    // Peach → Orange → Coral
+  | 'peach'    // Peach → Orange → Gold
   | 'mint'     // Mint → Teal → Cyan
   | 'lavender' // Lavender → Purple → Pink
-  | 'coral';   // Coral → Orange → Pink
+  | 'coral'    // Coral → Orange → Pink
+  // New dramatic presets
+  | 'electric' // Blue → Purple → Pink → Orange
+  | 'plasma'   // Magenta → Rose → Orange
+  | 'emerald'  // Emerald green spectrum
+  | 'cosmic';  // Deep space purple spectrum
 
 // Device types for analytics
 export type DeviceType = 'mobile' | 'desktop' | 'tablet';
