@@ -41,16 +41,140 @@ function parseReferrer(referrer: string): string {
     }
 }
 
-// Track a page view
+// Geo lookup using free ip-api.com service
+type GeoData = { country?: string; countryName?: string };
+
+async function getGeoFromIP(ip: string): Promise<GeoData> {
+    // Skip local/private IPs
+    if (ip === '127.0.0.1' || ip === 'localhost' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+        return {};
+    }
+
+    try {
+        // Using ip-api.com free tier (45 requests/minute for non-commercial use)
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,country`, {
+            // Short timeout to avoid blocking
+            signal: AbortSignal.timeout(2000)
+        });
+
+        if (!response.ok) return {};
+
+        const data = await response.json();
+        if (data.countryCode) {
+            return {
+                country: data.countryCode,
+                countryName: data.country
+            };
+        }
+    } catch {
+        // Fail silently - geo is optional
+    }
+    return {};
+}
+
+// Device detection from user agent
+type DeviceInfo = {
+    device: 'mobile' | 'desktop' | 'tablet';
+    browser: string;
+    os: string;
+};
+
+function parseUserAgent(userAgent: string): DeviceInfo {
+    const ua = userAgent.toLowerCase();
+
+    // Device detection
+    let device: 'mobile' | 'desktop' | 'tablet' = 'desktop';
+    if (/ipad|tablet|playbook|silk/.test(ua)) {
+        device = 'tablet';
+    } else if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile|wpdesktop/.test(ua)) {
+        device = 'mobile';
+    }
+
+    // Browser detection
+    let browser = 'Other';
+    if (ua.includes('edg/')) browser = 'Edge';
+    else if (ua.includes('chrome') && !ua.includes('edg')) browser = 'Chrome';
+    else if (ua.includes('safari') && !ua.includes('chrome')) browser = 'Safari';
+    else if (ua.includes('firefox')) browser = 'Firefox';
+    else if (ua.includes('opera') || ua.includes('opr/')) browser = 'Opera';
+    else if (ua.includes('samsung')) browser = 'Samsung';
+    else if (ua.includes('msie') || ua.includes('trident')) browser = 'IE';
+
+    // OS detection
+    let os = 'Other';
+    if (ua.includes('windows')) os = 'Windows';
+    else if (ua.includes('mac os') || ua.includes('macintosh')) os = 'macOS';
+    else if (ua.includes('iphone') || ua.includes('ipad')) os = 'iOS';
+    else if (ua.includes('android')) os = 'Android';
+    else if (ua.includes('linux')) os = 'Linux';
+    else if (ua.includes('chrome os')) os = 'ChromeOS';
+
+    return { device, browser, os };
+}
+
+// Traffic source classification
+type SourceInfo = {
+    source: 'qr' | 'social' | 'search' | 'direct' | 'referral';
+    isQrScan: boolean;
+};
+
+function detectSource(referrer: string, queryParams?: string, device?: string): SourceInfo {
+    const ref = referrer.toLowerCase();
+
+    // Check for QR code indicators
+    // UTM source=qr or no referrer on mobile = likely QR scan
+    if (queryParams?.includes('source=qr') || queryParams?.includes('utm_source=qr')) {
+        return { source: 'qr', isQrScan: true };
+    }
+
+    // No referrer + mobile device = likely QR code scan
+    if ((!referrer || referrer === 'direct') && device === 'mobile') {
+        return { source: 'qr', isQrScan: true };
+    }
+
+    // Direct traffic
+    if (!referrer || referrer === '' || referrer === 'direct') {
+        return { source: 'direct', isQrScan: false };
+    }
+
+    // Social media sources
+    const socialPatterns = ['facebook', 'fb.com', 'instagram', 'twitter', 't.co', 'linkedin',
+        'tiktok', 'snapchat', 'pinterest', 'reddit', 'telegram', 'whatsapp',
+        'youtube', 'discord', 'threads'];
+    if (socialPatterns.some(p => ref.includes(p))) {
+        return { source: 'social', isQrScan: false };
+    }
+
+    // Search engines
+    const searchPatterns = ['google', 'bing', 'yahoo', 'duckduckgo', 'baidu', 'yandex', 'ecosia'];
+    if (searchPatterns.some(p => ref.includes(p))) {
+        return { source: 'search', isQrScan: false };
+    }
+
+    // Everything else is a referral
+    return { source: 'referral', isQrScan: false };
+}
+
+// Track a page view with enhanced data
 export async function trackPageView(
     profileId: string,
     referrer: string,
     userAgent: string,
-    ip: string
+    ip: string,
+    queryParams?: string  // Optional query string for QR detection
 ): Promise<void> {
     try {
         const db = await getDatabase();
         const collection = db.collection(ANALYTICS_COLLECTION);
+
+        // Get geo data (non-blocking, will use cached or default if slow)
+        const geoData = await getGeoFromIP(ip);
+
+        // Parse user agent for device info
+        const deviceInfo = parseUserAgent(userAgent || '');
+
+        // Detect traffic source
+        const sourceInfo = detectSource(referrer, queryParams, deviceInfo.device);
 
         const event = {
             profileId,
@@ -58,6 +182,16 @@ export async function trackPageView(
             referrer: parseReferrer(referrer),
             userAgent: userAgent || 'unknown',
             ipHash: hashIP(ip),
+            // Geo data
+            country: geoData.country,
+            countryName: geoData.countryName,
+            // Device data
+            device: deviceInfo.device,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
+            // Source data
+            source: sourceInfo.source,
+            isQrScan: sourceInfo.isQrScan,
             timestamp: new Date(),
         };
 
@@ -73,10 +207,11 @@ export async function trackPageView(
     }
 }
 
-// Track a link click
+// Track a link click with enhanced data
 export async function trackLinkClick(
     profileId: string,
     linkId: string,
+    linkTitle: string,
     referrer: string,
     userAgent: string,
     ip: string
@@ -85,13 +220,21 @@ export async function trackLinkClick(
         const db = await getDatabase();
         const collection = db.collection(ANALYTICS_COLLECTION);
 
+        // Parse user agent for device info
+        const deviceInfo = parseUserAgent(userAgent || '');
+
         const event = {
             profileId,
             type: 'click',
             linkId,
+            linkTitle,
             referrer: parseReferrer(referrer),
             userAgent: userAgent || 'unknown',
             ipHash: hashIP(ip),
+            // Device data
+            device: deviceInfo.device,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
             timestamp: new Date(),
         };
 
@@ -123,6 +266,14 @@ export async function getProfileAnalytics(profileId: string): Promise<AnalyticsS
             profileId,
             type: 'click'
         });
+
+        // Unique visitors (by IP hash)
+        const uniqueVisitorsAgg = await analyticsCollection.aggregate([
+            { $match: { profileId, type: 'view' } },
+            { $group: { _id: '$ipHash' } },
+            { $count: 'count' }
+        ]).toArray();
+        const uniqueVisitors = uniqueVisitorsAgg[0]?.count || 0;
 
         // Clicks by link
         const clicksByLinkAgg = await analyticsCollection.aggregate([
@@ -182,6 +333,7 @@ export async function getProfileAnalytics(profileId: string): Promise<AnalyticsS
         return {
             totalViews,
             totalClicks,
+            uniqueVisitors,
             clicksByLink,
             referrerBreakdown,
             viewsOverTime
@@ -191,6 +343,7 @@ export async function getProfileAnalytics(profileId: string): Promise<AnalyticsS
         return {
             totalViews: 0,
             totalClicks: 0,
+            uniqueVisitors: 0,
             clicksByLink: [],
             referrerBreakdown: [],
             viewsOverTime: []
@@ -266,5 +419,225 @@ export async function getGlobalReferrerStats(): Promise<{ source: string; count:
     } catch (error) {
         console.error('Failed to get global referrer stats:', error);
         return [];
+    }
+}
+
+// Get geo analytics - country breakdown (admin only)
+export async function getGeoAnalytics(): Promise<{
+    countries: { code: string; name: string; count: number; percentage: number }[];
+    totalWithGeo: number;
+}> {
+    try {
+        const db = await getDatabase();
+        const collection = db.collection(ANALYTICS_COLLECTION);
+
+        // Get country breakdown
+        const geoAgg = await collection.aggregate([
+            { $match: { type: 'view', country: { $exists: true, $ne: null } } },
+            {
+                $group: {
+                    _id: { code: '$country', name: '$countryName' },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } },
+            { $limit: 20 }
+        ]).toArray();
+
+        // Get total with geo data
+        const totalWithGeo = await collection.countDocuments({
+            type: 'view',
+            country: { $exists: true, $ne: null }
+        });
+
+        const countries = geoAgg.map((item: Document) => ({
+            code: (item._id as { code: string }).code,
+            name: (item._id as { name: string }).name || (item._id as { code: string }).code,
+            count: item.count as number,
+            percentage: totalWithGeo > 0 ? Math.round(((item.count as number) / totalWithGeo) * 100) : 0
+        }));
+
+        return { countries, totalWithGeo };
+    } catch (error) {
+        console.error('Failed to get geo analytics:', error);
+        return { countries: [], totalWithGeo: 0 };
+    }
+}
+
+// Get device, browser, and OS analytics
+export async function getDeviceAnalytics(): Promise<{
+    devices: { device: string; count: number; percentage: number }[];
+    browsers: { browser: string; count: number; percentage: number }[];
+    os: { os: string; count: number; percentage: number }[];
+    totalViews: number;
+}> {
+    try {
+        const db = await getDatabase();
+        const collection = db.collection(ANALYTICS_COLLECTION);
+
+        // Total views with device data
+        const totalViews = await collection.countDocuments({
+            type: 'view',
+            device: { $exists: true }
+        });
+
+        // Device breakdown
+        const deviceAgg = await collection.aggregate([
+            { $match: { type: 'view', device: { $exists: true, $ne: null } } },
+            { $group: { _id: '$device', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]).toArray();
+
+        const devices = deviceAgg.map((item: Document) => ({
+            device: (item._id as string) || 'unknown',
+            count: item.count as number,
+            percentage: totalViews > 0 ? Math.round(((item.count as number) / totalViews) * 100) : 0
+        }));
+
+        // Browser breakdown
+        const browserAgg = await collection.aggregate([
+            { $match: { type: 'view', browser: { $exists: true, $ne: null } } },
+            { $group: { _id: '$browser', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]).toArray();
+
+        const browsers = browserAgg.map((item: Document) => ({
+            browser: (item._id as string) || 'Other',
+            count: item.count as number,
+            percentage: totalViews > 0 ? Math.round(((item.count as number) / totalViews) * 100) : 0
+        }));
+
+        // OS breakdown
+        const osAgg = await collection.aggregate([
+            { $match: { type: 'view', os: { $exists: true, $ne: null } } },
+            { $group: { _id: '$os', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]).toArray();
+
+        const os = osAgg.map((item: Document) => ({
+            os: (item._id as string) || 'Other',
+            count: item.count as number,
+            percentage: totalViews > 0 ? Math.round(((item.count as number) / totalViews) * 100) : 0
+        }));
+
+        return { devices, browsers, os, totalViews };
+    } catch (error) {
+        console.error('Failed to get device analytics:', error);
+        return { devices: [], browsers: [], os: [], totalViews: 0 };
+    }
+}
+
+// Get traffic source analytics (QR, Social, Search, Direct, Referral)
+export async function getSourceAnalytics(): Promise<{
+    sources: { source: string; count: number; percentage: number; icon: string }[];
+    qrScans: number;
+    totalViews: number;
+}> {
+    try {
+        const db = await getDatabase();
+        const collection = db.collection(ANALYTICS_COLLECTION);
+
+        // Total views
+        const totalViews = await collection.countDocuments({ type: 'view' });
+
+        // Source breakdown
+        const sourceAgg = await collection.aggregate([
+            { $match: { type: 'view', source: { $exists: true, $ne: null } } },
+            { $group: { _id: '$source', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]).toArray();
+
+        // Map sources to friendly names and icons
+        const sourceIcons: Record<string, string> = {
+            'qr': '📱',
+            'social': '👥',
+            'search': '🔍',
+            'direct': '🔗',
+            'referral': '↗️'
+        };
+
+        const sourceNames: Record<string, string> = {
+            'qr': 'QR Code Scan',
+            'social': 'Social Media',
+            'search': 'Search Engine',
+            'direct': 'Direct Visit',
+            'referral': 'Referral Link'
+        };
+
+        const sources = sourceAgg.map((item: Document) => ({
+            source: sourceNames[(item._id as string)] || (item._id as string),
+            count: item.count as number,
+            percentage: totalViews > 0 ? Math.round(((item.count as number) / totalViews) * 100) : 0,
+            icon: sourceIcons[(item._id as string)] || '🌐'
+        }));
+
+        // QR scans count
+        const qrScans = await collection.countDocuments({
+            type: 'view',
+            isQrScan: true
+        });
+
+        return { sources, qrScans, totalViews };
+    } catch (error) {
+        console.error('Failed to get source analytics:', error);
+        return { sources: [], qrScans: 0, totalViews: 0 };
+    }
+}
+
+// Get detailed click analytics
+export async function getClickAnalytics(): Promise<{
+    topLinks: { linkId: string; title: string; clicks: number; ctr: number }[];
+    clicksByDevice: { device: string; count: number; percentage: number }[];
+    totalClicks: number;
+    totalViews: number;
+}> {
+    try {
+        const db = await getDatabase();
+        const collection = db.collection(ANALYTICS_COLLECTION);
+
+        // Totals
+        const totalViews = await collection.countDocuments({ type: 'view' });
+        const totalClicks = await collection.countDocuments({ type: 'click' });
+
+        // Top clicked links
+        const clicksAgg = await collection.aggregate([
+            { $match: { type: 'click' } },
+            {
+                $group: {
+                    _id: '$linkId',
+                    title: { $first: '$linkTitle' },
+                    clicks: { $sum: 1 }
+                }
+            },
+            { $sort: { clicks: -1 } },
+            { $limit: 10 }
+        ]).toArray();
+
+        const topLinks = clicksAgg.map((item: Document) => ({
+            linkId: (item._id as string) || '',
+            title: (item.title as string) || 'Unknown Link',
+            clicks: item.clicks as number,
+            ctr: totalViews > 0 ? Math.round(((item.clicks as number) / totalViews) * 100) : 0
+        }));
+
+        // Clicks by device
+        const deviceClicksAgg = await collection.aggregate([
+            { $match: { type: 'click', device: { $exists: true } } },
+            { $group: { _id: '$device', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]).toArray();
+
+        const clicksByDevice = deviceClicksAgg.map((item: Document) => ({
+            device: (item._id as string) || 'unknown',
+            count: item.count as number,
+            percentage: totalClicks > 0 ? Math.round(((item.count as number) / totalClicks) * 100) : 0
+        }));
+
+        return { topLinks, clicksByDevice, totalClicks, totalViews };
+    } catch (error) {
+        console.error('Failed to get click analytics:', error);
+        return { topLinks: [], clicksByDevice: [], totalClicks: 0, totalViews: 0 };
     }
 }

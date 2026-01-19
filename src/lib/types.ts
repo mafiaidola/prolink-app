@@ -150,7 +150,26 @@ export type EnabledBlocks = {
   viewCounter?: boolean;    // Show view count publicly
   socialIcons?: boolean;    // Show social icons grid
   contactForm?: boolean;    // Show contact form
+  testimonials?: boolean;   // Show testimonials section
 };
+
+// Name gradient presets
+export type NameGradient =
+  | 'none'     // Solid color (no gradient)
+  | 'sunset'   // Orange → Pink → Purple
+  | 'ocean'    // Cyan → Blue → Indigo
+  | 'neon'     // Pink → Yellow → Cyan
+  | 'gold'     // Gold → Yellow → Orange
+  | 'aurora'   // Green → Cyan → Purple
+  | 'fire'     // Red → Orange → Yellow
+  | 'royal'    // Purple → Blue → Pink
+  | 'matrix';  // Dark Green → Bright Green
+
+// Device types for analytics
+export type DeviceType = 'mobile' | 'desktop' | 'tablet';
+
+// Traffic source classification  
+export type TrafficSource = 'qr' | 'social' | 'search' | 'direct' | 'referral';
 
 // Analytics event stored in MongoDB
 export type AnalyticsEvent = {
@@ -158,10 +177,21 @@ export type AnalyticsEvent = {
   profileId: string;
   type: 'view' | 'click';
   linkId?: string;          // For click events
-  referrer: string;         // Traffic source
+  linkTitle?: string;       // Link title for click events
+  referrer: string;         // Raw referrer URL/domain
   userAgent: string;
   ipHash: string;           // Hashed for privacy
-  country?: string;
+  // Geo data
+  country?: string;         // Country code (e.g., "US", "EG")
+  countryName?: string;     // Full country name
+  // Device data
+  device?: DeviceType;      // mobile | desktop | tablet
+  browser?: string;         // Chrome, Safari, Firefox, etc.
+  os?: string;              // Windows, macOS, iOS, Android, etc.
+  // Source classification
+  source?: TrafficSource;   // qr | social | search | direct | referral
+  isQrScan?: boolean;       // Detected QR code scan
+  // Timestamps
   timestamp: Date;
 };
 
@@ -169,9 +199,15 @@ export type AnalyticsEvent = {
 export type AnalyticsSummary = {
   totalViews: number;
   totalClicks: number;
+  uniqueVisitors: number;
   clicksByLink: { linkId: string; linkTitle: string; clicks: number }[];
   referrerBreakdown: { source: string; count: number }[];
   viewsOverTime: { date: string; views: number }[];
+  // Enhanced breakdowns
+  deviceBreakdown?: { device: DeviceType; count: number; percentage: number }[];
+  browserBreakdown?: { browser: string; count: number; percentage: number }[];
+  osBreakdown?: { os: string; count: number; percentage: number }[];
+  sourceBreakdown?: { source: TrafficSource; count: number; percentage: number }[];
 };
 
 // Contact form submission
@@ -212,6 +248,37 @@ export type ContactFormSettings = {
   };
 };
 
+// Testimonial display styles
+export type TestimonialsStyle =
+  | 'carousel'  // Horizontal sliding cards
+  | 'grid'      // 2-3 column grid layout
+  | 'stack'     // Vertical stacked cards
+  | 'quotes'    // Large quote with author below
+  | 'minimal';  // Simple text with name only
+
+// Individual testimonial
+export type Testimonial = {
+  id: string;
+  name: string;           // Required: reviewer name
+  title?: string;         // Optional: job title/role
+  company?: string;       // Optional: company name
+  avatarUrl?: string;     // Optional: profile photo
+  rating?: number;        // Optional: 1-5 stars
+  text: string;           // Required: testimonial content
+  date?: string;          // Optional: date of review
+};
+
+// Testimonials section settings
+export type TestimonialsSettings = {
+  title?: string;                   // Section heading (default: "What People Say")
+  style?: TestimonialsStyle;        // Display style (default: "carousel")
+  autoRotate?: boolean;             // Auto-rotate carousel
+  rotateInterval?: number;          // Seconds between rotations
+  showRatings?: boolean;            // Show star ratings
+  showAvatars?: boolean;            // Show avatar images
+  showDates?: boolean;              // Show testimonial dates
+};
+
 // ========== UPDATED PROFILE TYPE ==========
 
 export type Profile = {
@@ -230,11 +297,15 @@ export type Profile = {
   links?: Link[];
   vCard?: VCard;
   createdAt?: string;
-  // New feature fields
+  // Feature toggles and settings
   enabledBlocks?: EnabledBlocks;
   socialLinks?: SocialLink[];
-  viewCount?: number;       // Cached view count for display
+  viewCount?: number;                         // Cached view count for display
   contactFormSettings?: ContactFormSettings;  // Contact form customization
+  // New visual and content features
+  nameGradient?: NameGradient;                // Gradient style for profile name
+  testimonials?: Testimonial[];               // List of testimonials
+  testimonialsSettings?: TestimonialsSettings; // Testimonials display settings
 };
 
 export type SessionPayload = {

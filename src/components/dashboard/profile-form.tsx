@@ -4,8 +4,10 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink, ContactFormSettings } from '@/lib/types';
+import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink, ContactFormSettings, NameGradient, Testimonial, TestimonialsSettings } from '@/lib/types';
 import { FeatureBlocksEditor } from './feature-blocks-editor';
+import { TestimonialsEditor } from './testimonials-editor';
+import { GradientPreview, gradientOptions } from '@/components/profile/gradient-text';
 import {
     Form,
     FormControl,
@@ -203,6 +205,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     const [enabledBlocks, setEnabledBlocks] = React.useState<EnabledBlocks>(profile.enabledBlocks || {});
     const [socialLinks, setSocialLinks] = React.useState<SocialLink[]>(profile.socialLinks || []);
     const [contactFormSettings, setContactFormSettings] = React.useState<ContactFormSettings>(profile.contactFormSettings || {});
+    const [nameGradient, setNameGradient] = React.useState<NameGradient>(profile.nameGradient || 'none');
+    const [testimonials, setTestimonials] = React.useState<Testimonial[]>(profile.testimonials || []);
+    const [testimonialsSettings, setTestimonialsSettings] = React.useState<TestimonialsSettings>(profile.testimonialsSettings || {});
 
     const isNewProfile = !profile.id;
 
@@ -282,7 +287,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 router.push(`/dashboard/edit/${newProfile.slug}`);
                 router.refresh();
             } else {
-                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks, contactFormSettings };
+                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks, contactFormSettings, nameGradient, testimonials, testimonialsSettings };
                 await updateProfile(updated);
                 toast({
                     title: 'Profile Saved',
@@ -370,6 +375,25 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                     </FormItem>
                                 )}
                             />
+
+                            {/* Name Gradient Selector */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Name Gradient Style</label>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                    Add a gradient effect to your profile name
+                                </p>
+                                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                                    {gradientOptions.map((gradient) => (
+                                        <GradientPreview
+                                            key={gradient}
+                                            gradient={gradient}
+                                            selected={nameGradient === gradient}
+                                            onClick={() => setNameGradient(gradient)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
                             <FormField
                                 control={form.control}
                                 name="slug"
@@ -853,6 +877,16 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                         onEnabledBlocksChange={setEnabledBlocks}
                         onSocialLinksChange={setSocialLinks}
                         onContactFormSettingsChange={setContactFormSettings}
+                    />
+
+                    {/* Testimonials Section */}
+                    <TestimonialsEditor
+                        enabled={enabledBlocks.testimonials || false}
+                        testimonials={testimonials}
+                        settings={testimonialsSettings}
+                        onEnabledChange={(enabled) => setEnabledBlocks({ ...enabledBlocks, testimonials: enabled })}
+                        onTestimonialsChange={setTestimonials}
+                        onSettingsChange={setTestimonialsSettings}
                     />
 
                     <div className="flex justify-between">

@@ -6,6 +6,7 @@ import { LanguageSwitcher } from '@/components/profile/language-switcher';
 import { ViewCounter } from '@/components/profile/view-counter';
 import { SocialIconsGrid } from '@/components/profile/social-icons-grid';
 import { ContactForm } from '@/components/profile/contact-form';
+import { Testimonials } from '@/components/profile/testimonials';
 import { trackPageView } from '@/lib/analytics-actions';
 import { headers } from 'next/headers';
 import { Metadata } from 'next';
@@ -92,7 +93,17 @@ export default async function ProfilePage({ params }: Props) {
         </div>
       )}
 
-      {/* Contact form - below social icons */}
+      {/* Testimonials - below social icons */}
+      {profile.enabledBlocks?.testimonials && profile.testimonials && profile.testimonials.length > 0 && (
+        <div className="z-10 mt-4 w-full max-w-2xl">
+          <Testimonials
+            testimonials={profile.testimonials}
+            settings={profile.testimonialsSettings}
+          />
+        </div>
+      )}
+
+      {/* Contact form - below testimonials */}
       {profile.enabledBlocks?.contactForm && (
         <div className="z-10 mt-4 w-full max-w-md">
           <ContactForm
