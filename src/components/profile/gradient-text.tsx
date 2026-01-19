@@ -2,11 +2,12 @@
 
 import { NameGradient } from '@/lib/types';
 
-// Gradient preset definitions
+// Gradient preset definitions - 21 total presets
 const gradientPresets: Record<NameGradient, { gradient: string; animated?: boolean }> = {
     none: {
         gradient: 'inherit',
     },
+    // Original presets
     sunset: {
         gradient: 'linear-gradient(90deg, #f97316, #ec4899, #a855f7)',
         animated: true,
@@ -37,6 +38,55 @@ const gradientPresets: Record<NameGradient, { gradient: string; animated?: boole
     },
     matrix: {
         gradient: 'linear-gradient(90deg, #166534, #22c55e, #4ade80)',
+        animated: true,
+    },
+    // NEW presets
+    candy: {
+        gradient: 'linear-gradient(90deg, #ec4899, #8b5cf6, #ec4899)',
+        animated: true,
+    },
+    cyber: {
+        gradient: 'linear-gradient(90deg, #06b6d4, #d946ef, #facc15)',
+        animated: true,
+    },
+    nature: {
+        gradient: 'linear-gradient(90deg, #22c55e, #14b8a6, #0ea5e9)',
+        animated: true,
+    },
+    cherry: {
+        gradient: 'linear-gradient(90deg, #dc2626, #f43f5e, #e11d48)',
+        animated: true,
+    },
+    midnight: {
+        gradient: 'linear-gradient(90deg, #1e3a8a, #7c3aed, #1e3a8a)',
+        animated: true,
+    },
+    bronze: {
+        gradient: 'linear-gradient(90deg, #92400e, #d97706, #b45309)',
+        animated: true,
+    },
+    silver: {
+        gradient: 'linear-gradient(90deg, #6b7280, #d1d5db, #9ca3af)',
+        animated: true,
+    },
+    rainbow: {
+        gradient: 'linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6)',
+        animated: true,
+    },
+    peach: {
+        gradient: 'linear-gradient(90deg, #fda4af, #fb923c, #f97316)',
+        animated: true,
+    },
+    mint: {
+        gradient: 'linear-gradient(90deg, #6ee7b7, #2dd4bf, #22d3ee)',
+        animated: true,
+    },
+    lavender: {
+        gradient: 'linear-gradient(90deg, #c4b5fd, #a78bfa, #f0abfc)',
+        animated: true,
+    },
+    coral: {
+        gradient: 'linear-gradient(90deg, #fb7185, #f97316, #ec4899)',
         animated: true,
     },
 };
@@ -97,7 +147,7 @@ export function GradientPreview({
             type="button"
             onClick={onClick}
             className={`
-        relative p-3 rounded-lg border-2 transition-all duration-200
+        relative p-2 rounded-lg border-2 transition-all duration-200 min-w-[70px]
         ${selected
                     ? 'border-purple-500 ring-2 ring-purple-500/20'
                     : 'border-transparent hover:border-muted-foreground/30'
@@ -114,11 +164,11 @@ export function GradientPreview({
         >
             <span
                 className={`
-          text-sm font-semibold capitalize
+          text-xs font-semibold capitalize
           ${isNone ? 'text-muted-foreground' : 'text-white drop-shadow-md'}
         `}
             >
-                {gradient === 'none' ? 'No Gradient' : gradient}
+                {gradient === 'none' ? 'None' : gradient}
             </span>
             {selected && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
@@ -131,7 +181,7 @@ export function GradientPreview({
     );
 }
 
-// All gradient options for the selector
+// All gradient options for the selector - 21 total
 export const gradientOptions: NameGradient[] = [
     'none',
     'sunset',
@@ -142,4 +192,17 @@ export const gradientOptions: NameGradient[] = [
     'fire',
     'royal',
     'matrix',
+    // New presets
+    'candy',
+    'cyber',
+    'nature',
+    'cherry',
+    'midnight',
+    'bronze',
+    'silver',
+    'rainbow',
+    'peach',
+    'mint',
+    'lavender',
+    'coral',
 ];

@@ -4,9 +4,10 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink, ContactFormSettings, NameGradient, Testimonial, TestimonialsSettings } from '@/lib/types';
+import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink, ContactFormSettings, NameGradient, Testimonial, TestimonialsSettings, VerifiedBadgeSettings } from '@/lib/types';
 import { FeatureBlocksEditor } from './feature-blocks-editor';
 import { TestimonialsEditor } from './testimonials-editor';
+import { VerifiedBadgeEditor } from './verified-badge-editor';
 import { GradientPreview, gradientOptions } from '@/components/profile/gradient-text';
 import {
     Form,
@@ -206,8 +207,15 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     const [socialLinks, setSocialLinks] = React.useState<SocialLink[]>(profile.socialLinks || []);
     const [contactFormSettings, setContactFormSettings] = React.useState<ContactFormSettings>(profile.contactFormSettings || {});
     const [nameGradient, setNameGradient] = React.useState<NameGradient>(profile.nameGradient || 'none');
+    const [jobTitleGradient, setJobTitleGradient] = React.useState<NameGradient>(profile.jobTitleGradient || 'none');
     const [testimonials, setTestimonials] = React.useState<Testimonial[]>(profile.testimonials || []);
     const [testimonialsSettings, setTestimonialsSettings] = React.useState<TestimonialsSettings>(profile.testimonialsSettings || {});
+    const [verifiedBadge, setVerifiedBadge] = React.useState<VerifiedBadgeSettings>(profile.verifiedBadge || {
+        enabled: profile.isVerified || false,
+        icon: 'BadgeCheck',
+        color: '#3b82f6',
+        size: 'md'
+    });
 
     const isNewProfile = !profile.id;
 
@@ -287,7 +295,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 router.push(`/dashboard/edit/${newProfile.slug}`);
                 router.refresh();
             } else {
-                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks, contactFormSettings, nameGradient, testimonials, testimonialsSettings };
+                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks, contactFormSettings, nameGradient, jobTitleGradient, testimonials, testimonialsSettings, verifiedBadge };
                 await updateProfile(updated);
                 toast({
                     title: 'Profile Saved',
@@ -421,8 +429,32 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                                     </FormItem>
                                 )}
                             />
+
+                            {/* Job Title Gradient Selector */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Job Title Gradient Style</label>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                    Add a gradient effect to your job title
+                                </p>
+                                <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
+                                    {gradientOptions.map((gradient) => (
+                                        <GradientPreview
+                                            key={gradient}
+                                            gradient={gradient}
+                                            selected={jobTitleGradient === gradient}
+                                            onClick={() => setJobTitleGradient(gradient)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
+
+                    {/* Verified Badge Editor */}
+                    <VerifiedBadgeEditor
+                        settings={verifiedBadge}
+                        onChange={setVerifiedBadge}
+                    />
 
                     <Card>
                         <CardHeader>

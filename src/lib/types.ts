@@ -163,7 +163,20 @@ export type NameGradient =
   | 'aurora'   // Green → Cyan → Purple
   | 'fire'     // Red → Orange → Yellow
   | 'royal'    // Purple → Blue → Pink
-  | 'matrix';  // Dark Green → Bright Green
+  | 'matrix'   // Dark Green → Bright Green
+  // New presets
+  | 'candy'    // Pink → Purple → Pink
+  | 'cyber'    // Cyan → Magenta → Yellow
+  | 'nature'   // Green → Teal → Blue
+  | 'cherry'   // Red → Pink → Rose
+  | 'midnight' // Dark Blue → Purple → Dark Blue
+  | 'bronze'   // Brown → Gold → Brown
+  | 'silver'   // Gray → White → Gray
+  | 'rainbow'  // Full spectrum
+  | 'peach'    // Peach → Orange → Coral
+  | 'mint'     // Mint → Teal → Cyan
+  | 'lavender' // Lavender → Purple → Pink
+  | 'coral';   // Coral → Orange → Pink
 
 // Device types for analytics
 export type DeviceType = 'mobile' | 'desktop' | 'tablet';
@@ -279,6 +292,14 @@ export type TestimonialsSettings = {
   showDates?: boolean;              // Show testimonial dates
 };
 
+// Verified badge settings with icon customization
+export type VerifiedBadgeSettings = {
+  enabled: boolean;                 // Show verified badge
+  icon: string;                     // Lucide icon name
+  color: string;                    // Hex color for icon
+  size: 'sm' | 'md' | 'lg';         // Badge size
+};
+
 // ========== UPDATED PROFILE TYPE ==========
 
 export type Profile = {
@@ -302,10 +323,12 @@ export type Profile = {
   socialLinks?: SocialLink[];
   viewCount?: number;                         // Cached view count for display
   contactFormSettings?: ContactFormSettings;  // Contact form customization
-  // New visual and content features
+  // Visual and content features
   nameGradient?: NameGradient;                // Gradient style for profile name
+  jobTitleGradient?: NameGradient;            // Gradient style for job title
   testimonials?: Testimonial[];               // List of testimonials
   testimonialsSettings?: TestimonialsSettings; // Testimonials display settings
+  verifiedBadge?: VerifiedBadgeSettings;      // Verified badge customization
 };
 
 export type SessionPayload = {

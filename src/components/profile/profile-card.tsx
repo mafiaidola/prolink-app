@@ -2,6 +2,7 @@
 
 import type { Profile, ContentBlock, ProductSliderBlock, LogoCarouselBlock, SkillsBlock } from '@/lib/types';
 import { GradientText } from './gradient-text';
+import { getIconByName } from '@/components/dashboard/verified-badge-editor';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -246,9 +247,18 @@ const DefaultLayout = ({ profile, selectedTheme }: { profile: Profile; selectedT
                 <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>
                     <GradientText text={profile.name} gradient={profile.nameGradient} as="span" />
                 </CardTitle>
-                {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
+                {(profile.verifiedBadge?.enabled || profile.isVerified) && (() => {
+                    const iconName = profile.verifiedBadge?.icon || 'BadgeCheck';
+                    const iconColor = profile.verifiedBadge?.color || '#3b82f6';
+                    const iconSize = profile.verifiedBadge?.size || 'md';
+                    const sizeClass = iconSize === 'sm' ? 'w-4 h-4' : iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
+                    const IconComponent = getIconByName(iconName);
+                    return <IconComponent className={sizeClass} style={{ color: iconColor }} />;
+                })()}
             </div>
-            <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+            <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>
+                <GradientText text={profile.jobTitle} gradient={profile.jobTitleGradient} as="span" className={selectedTheme.cardDescription} />
+            </CardDescription>
         </CardHeader>
         <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="space-y-4">
