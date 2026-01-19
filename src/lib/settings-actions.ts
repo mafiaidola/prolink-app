@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import type { HomepageContent, Feature } from './types';
 import { revalidatePath } from 'next/cache';
-import { createAdminClient } from './supabase-admin';
+import { getDatabase } from './mongodb';
 
 const featureSchema = z.object({
     icon: z.string().min(1, "Icon is required."),
@@ -33,13 +33,14 @@ export type SettingsState = {
 };
 
 export async function saveSettings(prevState: SettingsState, formData: FormData): Promise<SettingsState> {
-    const supabase = createAdminClient();
+    const db = await getDatabase();
+    const collection = db.collection('homepage_content');
 
     const rawData = Object.fromEntries(formData.entries());
-    
+
     const features: Feature[] = [];
     const featureKeys = Object.keys(rawData).filter(key => key.startsWith('features.'));
-    
+
     const maxIndex = featureKeys.reduce((max, key) => {
         const match = key.match(/features\.(\d+)\./);
         if (match) {
@@ -81,22 +82,21 @@ export async function saveSettings(prevState: SettingsState, formData: FormData)
             error: "Failed to validate settings. Please ensure all fields are filled correctly.",
         };
     }
-    
-    try {
-        const { error } = await supabase
-            .from('homepage_content')
-            .update({ ...validatedFields.data, updatedAt: new Date().toISOString() })
-            .eq('id', 1);
 
-        if (error) throw error;
-        
+    try {
+        await collection.updateOne(
+            { _id: 1 as any },
+            { $set: { ...validatedFields.data, updatedAt: new Date().toISOString() } },
+            { upsert: true }
+        );
+
         revalidatePath('/');
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard');
         return { success: true, message: "Settings saved successfully!" };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        console.error("Error saving settings to Supabase:", errorMessage);
+        console.error("Error saving settings to MongoDB:", errorMessage);
         return { error: `Failed to save settings: ${errorMessage}` };
     }
 }

@@ -20,7 +20,7 @@ export type Theme =
   | 'sunset'
   | 'forest'
   | 'oceanic';
-  
+
 export type AnimatedBackground =
   | 'none'
   | 'particles'
@@ -36,8 +36,8 @@ export type AnimatedBackground =
   | 'solaris'
   | 'star-wars';
 
-export type ProfileLayout = 
-  | 'default' 
+export type ProfileLayout =
+  | 'default'
   | 'stacked'
   | 'minimalist-center'
   | 'modern-split'
@@ -76,9 +76,9 @@ export type Skill = {
 };
 
 export type SkillsBlock = ContentBlockBase & {
-    type: 'skills';
-    title?: string;
-    skills?: Skill[];
+  type: 'skills';
+  title?: string;
+  skills?: Skill[];
 };
 
 export type ProductSlide = {
@@ -119,8 +119,77 @@ export type VCard = {
   website?: string;
 };
 
+// ========== NEW FEATURE TYPES ==========
+
+// Social media platforms supported
+export type SocialPlatform =
+  | 'instagram'
+  | 'twitter'
+  | 'facebook'
+  | 'linkedin'
+  | 'tiktok'
+  | 'youtube'
+  | 'github'
+  | 'telegram'
+  | 'whatsapp'
+  | 'snapchat'
+  | 'pinterest'
+  | 'discord'
+  | 'twitch'
+  | 'spotify'
+  | 'email';
+
+export type SocialLink = {
+  id: string;
+  platform: SocialPlatform;
+  url: string;
+};
+
+// Feature block toggles for profiles
+export type EnabledBlocks = {
+  viewCounter?: boolean;    // Show view count publicly
+  socialIcons?: boolean;    // Show social icons grid
+  contactForm?: boolean;    // Show contact form
+};
+
+// Analytics event stored in MongoDB
+export type AnalyticsEvent = {
+  id: string;
+  profileId: string;
+  type: 'view' | 'click';
+  linkId?: string;          // For click events
+  referrer: string;         // Traffic source
+  userAgent: string;
+  ipHash: string;           // Hashed for privacy
+  country?: string;
+  timestamp: Date;
+};
+
+// Analytics summary for dashboard
+export type AnalyticsSummary = {
+  totalViews: number;
+  totalClicks: number;
+  clicksByLink: { linkId: string; linkTitle: string; clicks: number }[];
+  referrerBreakdown: { source: string; count: number }[];
+  viewsOverTime: { date: string; views: number }[];
+};
+
+// Contact form submission
+export type ContactSubmission = {
+  id: string;
+  profileId: string;
+  profileName?: string;     // For admin display
+  name: string;
+  email: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+};
+
+// ========== UPDATED PROFILE TYPE ==========
+
 export type Profile = {
-  id: string; // Will be a UUID from Supabase
+  id: string; // MongoDB ObjectId as string
   slug: string;
   name: string;
   jobTitle: string;
@@ -134,7 +203,11 @@ export type Profile = {
   content?: ContentBlock[];
   links?: Link[];
   vCard?: VCard;
-  createdAt?: string; // Supabase adds this
+  createdAt?: string;
+  // New feature fields
+  enabledBlocks?: EnabledBlocks;
+  socialLinks?: SocialLink[];
+  viewCount?: number;       // Cached view count for display
 };
 
 export type SessionPayload = {
