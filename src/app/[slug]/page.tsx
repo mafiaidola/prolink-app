@@ -95,7 +95,11 @@ export default async function ProfilePage({ params }: Props) {
       {/* Contact form - below social icons */}
       {profile.enabledBlocks?.contactForm && (
         <div className="z-10 mt-4 w-full max-w-md">
-          <ContactForm profileId={profile.id} profileName={profile.name} />
+          <ContactForm
+            profileId={profile.id}
+            profileName={profile.name}
+            settings={profile.contactFormSettings}
+          />
         </div>
       )}
     </main>

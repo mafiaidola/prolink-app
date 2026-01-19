@@ -13,12 +13,22 @@ const contactFormSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100),
     email: z.string().email('Valid email is required'),
     message: z.string().min(10, 'Message must be at least 10 characters').max(2000),
+    phone: z.string().max(30).optional(),
+    subject: z.string().max(200).optional(),
+    company: z.string().max(100).optional(),
 });
 
 // Submit a contact form
 export async function submitContactForm(
     profileId: string,
-    formData: { name: string; email: string; message: string }
+    formData: {
+        name: string;
+        email: string;
+        message: string;
+        phone?: string;
+        subject?: string;
+        company?: string;
+    }
 ): Promise<{ success: boolean; error?: string }> {
     try {
         // Validate input
@@ -44,7 +54,7 @@ export async function submitContactForm(
             return { success: false, error: 'Contact form is not enabled for this profile' };
         }
 
-        const submission = {
+        const submission: Record<string, unknown> = {
             profileId,
             profileName: profile.name as string,
             name: validated.data.name,
@@ -53,6 +63,17 @@ export async function submitContactForm(
             isRead: false,
             createdAt: new Date(),
         };
+
+        // Add optional fields only if they have values
+        if (validated.data.phone) {
+            submission.phone = validated.data.phone;
+        }
+        if (validated.data.subject) {
+            submission.subject = validated.data.subject;
+        }
+        if (validated.data.company) {
+            submission.company = validated.data.company;
+        }
 
         await db.collection(SUBMISSIONS_COLLECTION).insertOne(submission);
 
@@ -95,6 +116,9 @@ export async function getContactSubmissions(options?: {
             profileName: doc.profileName as string,
             name: doc.name as string,
             email: doc.email as string,
+            phone: doc.phone as string | undefined,
+            subject: doc.subject as string | undefined,
+            company: doc.company as string | undefined,
             message: doc.message as string,
             isRead: doc.isRead as boolean,
             createdAt: doc.createdAt as Date,

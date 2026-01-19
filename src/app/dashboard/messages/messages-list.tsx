@@ -89,8 +89,8 @@ export function MessagesList({ initialSubmissions }: MessagesListProps) {
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-3 flex-1 min-w-0">
                                 <div className={`p-2 rounded-full shrink-0 ${submission.isRead
-                                        ? 'bg-muted text-muted-foreground'
-                                        : 'bg-purple-100 dark:bg-purple-900/50 text-purple-600'
+                                    ? 'bg-muted text-muted-foreground'
+                                    : 'bg-purple-100 dark:bg-purple-900/50 text-purple-600'
                                     }`}>
                                     {submission.isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                                 </div>
@@ -132,6 +132,32 @@ export function MessagesList({ initialSubmissions }: MessagesListProps) {
                     {/* Expanded Content */}
                     {expandedId === submission.id && (
                         <div className="border-t px-4 py-4 bg-muted/20">
+                            {/* Additional contact details */}
+                            {(submission.phone || submission.company || submission.subject) && (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 pb-4 border-b">
+                                    {submission.company && (
+                                        <div>
+                                            <p className="text-xs text-muted-foreground mb-0.5">Company</p>
+                                            <p className="text-sm font-medium">{submission.company}</p>
+                                        </div>
+                                    )}
+                                    {submission.phone && (
+                                        <div>
+                                            <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                                            <a href={`tel:${submission.phone}`} className="text-sm font-medium text-primary hover:underline">
+                                                {submission.phone}
+                                            </a>
+                                        </div>
+                                    )}
+                                    {submission.subject && (
+                                        <div className="col-span-2 md:col-span-1">
+                                            <p className="text-xs text-muted-foreground mb-0.5">Subject</p>
+                                            <p className="text-sm font-medium">{submission.subject}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="mb-4">
                                 <p className="text-sm font-medium text-muted-foreground mb-2">Message</p>
                                 <p className="text-foreground whitespace-pre-wrap">{submission.message}</p>
@@ -139,7 +165,7 @@ export function MessagesList({ initialSubmissions }: MessagesListProps) {
 
                             <div className="flex items-center gap-3 pt-4 border-t">
                                 <a
-                                    href={`mailto:${submission.email}`}
+                                    href={`mailto:${submission.email}${submission.subject ? `?subject=Re: ${submission.subject}` : ''}`}
                                     className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
                                 >
                                     <Mail className="h-4 w-4" />

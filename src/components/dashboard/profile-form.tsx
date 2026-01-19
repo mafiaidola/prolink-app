@@ -4,7 +4,7 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink } from '@/lib/types';
+import type { Profile, Theme, AnimatedBackground, ProfileLayout, EnabledBlocks, SocialLink, ContactFormSettings } from '@/lib/types';
 import { FeatureBlocksEditor } from './feature-blocks-editor';
 import {
     Form,
@@ -202,6 +202,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     // Feature blocks state (managed outside react-hook-form for simplicity)
     const [enabledBlocks, setEnabledBlocks] = React.useState<EnabledBlocks>(profile.enabledBlocks || {});
     const [socialLinks, setSocialLinks] = React.useState<SocialLink[]>(profile.socialLinks || []);
+    const [contactFormSettings, setContactFormSettings] = React.useState<ContactFormSettings>(profile.contactFormSettings || {});
 
     const isNewProfile = !profile.id;
 
@@ -281,7 +282,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 router.push(`/dashboard/edit/${newProfile.slug}`);
                 router.refresh();
             } else {
-                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks };
+                const updated: Profile = { ...profile, ...profileData, id: profile.id, enabledBlocks, socialLinks, contactFormSettings };
                 await updateProfile(updated);
                 toast({
                     title: 'Profile Saved',
@@ -848,8 +849,10 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     <FeatureBlocksEditor
                         enabledBlocks={enabledBlocks}
                         socialLinks={socialLinks}
+                        contactFormSettings={contactFormSettings}
                         onEnabledBlocksChange={setEnabledBlocks}
                         onSocialLinksChange={setSocialLinks}
+                        onContactFormSettingsChange={setContactFormSettings}
                     />
 
                     <div className="flex justify-between">

@@ -181,9 +181,35 @@ export type ContactSubmission = {
   profileName?: string;     // For admin display
   name: string;
   email: string;
+  phone?: string;           // Optional phone field
+  subject?: string;         // Optional subject field
+  company?: string;         // Optional company field
   message: string;
   isRead: boolean;
   createdAt: Date;
+};
+
+// Contact form customization settings
+export type ContactFormSettings = {
+  title?: string;           // Form heading (default: "Get in Touch")
+  description?: string;     // Subtitle/description under heading
+  buttonText?: string;      // Submit button text (default: "Send Message")
+  successMessage?: string;  // Message shown after submission
+  // Optional form fields
+  fields?: {
+    phone?: boolean;        // Show phone number field
+    subject?: boolean;      // Show subject field
+    company?: boolean;      // Show company field
+  };
+  // Field placeholders
+  placeholders?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    subject?: string;
+    company?: string;
+    message?: string;
+  };
 };
 
 // ========== UPDATED PROFILE TYPE ==========
@@ -208,6 +234,7 @@ export type Profile = {
   enabledBlocks?: EnabledBlocks;
   socialLinks?: SocialLink[];
   viewCount?: number;       // Cached view count for display
+  contactFormSettings?: ContactFormSettings;  // Contact form customization
 };
 
 export type SessionPayload = {

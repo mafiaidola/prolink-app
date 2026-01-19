@@ -1,16 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Profile, SocialLink, SocialPlatform, EnabledBlocks } from '@/lib/types';
+import { SocialLink, SocialPlatform, EnabledBlocks, ContactFormSettings } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import {
     Eye, Share2, MessageSquare, Trash2, PlusCircle,
     Instagram, Twitter, Facebook, Linkedin, Youtube, Github,
-    Send as Telegram, MessageCircle, Music2
+    Send as Telegram, MessageCircle, Music2, Phone, Building, Tag, Type
 } from 'lucide-react';
 
 const socialPlatforms: { value: SocialPlatform; label: string; icon: React.ReactNode }[] = [
@@ -34,15 +37,19 @@ const socialPlatforms: { value: SocialPlatform; label: string; icon: React.React
 interface FeatureBlocksEditorProps {
     enabledBlocks: EnabledBlocks;
     socialLinks: SocialLink[];
+    contactFormSettings: ContactFormSettings;
     onEnabledBlocksChange: (blocks: EnabledBlocks) => void;
     onSocialLinksChange: (links: SocialLink[]) => void;
+    onContactFormSettingsChange: (settings: ContactFormSettings) => void;
 }
 
 export function FeatureBlocksEditor({
     enabledBlocks,
     socialLinks,
+    contactFormSettings,
     onEnabledBlocksChange,
     onSocialLinksChange,
+    onContactFormSettingsChange,
 }: FeatureBlocksEditorProps) {
     const [newPlatform, setNewPlatform] = useState<SocialPlatform>('instagram');
     const [newUrl, setNewUrl] = useState('');
@@ -67,6 +74,25 @@ export function FeatureBlocksEditor({
 
     const removeSocialLink = (id: string) => {
         onSocialLinksChange(socialLinks.filter(link => link.id !== id));
+    };
+
+    // Contact form settings handlers
+    const updateContactSettings = (key: keyof ContactFormSettings, value: string) => {
+        onContactFormSettingsChange({ ...contactFormSettings, [key]: value });
+    };
+
+    const toggleContactField = (field: 'phone' | 'subject' | 'company', value: boolean) => {
+        onContactFormSettingsChange({
+            ...contactFormSettings,
+            fields: { ...contactFormSettings.fields, [field]: value }
+        });
+    };
+
+    const updatePlaceholder = (field: string, value: string) => {
+        onContactFormSettingsChange({
+            ...contactFormSettings,
+            placeholders: { ...contactFormSettings.placeholders, [field]: value }
+        });
     };
 
     return (
@@ -182,23 +208,207 @@ export function FeatureBlocksEditor({
                     )}
                 </div>
 
-                {/* Contact Form Toggle */}
-                <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <MessageSquare className="h-5 w-5 text-green-600" />
+                {/* Contact Form Toggle with Settings */}
+                <div className="rounded-lg border shadow-sm overflow-hidden">
+                    <div className="flex flex-row items-center justify-between p-3">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <MessageSquare className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <p className="font-medium">Contact Form</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Allow visitors to send you messages via a contact form.
+                                </p>
+                            </div>
                         </div>
-                        <div className="space-y-0.5">
-                            <p className="font-medium">Contact Form</p>
-                            <p className="text-sm text-muted-foreground">
-                                Allow visitors to send you messages via a contact form.
-                            </p>
-                        </div>
+                        <Switch
+                            checked={enabledBlocks.contactForm || false}
+                            onCheckedChange={(checked) => handleToggle('contactForm', checked)}
+                        />
                     </div>
-                    <Switch
-                        checked={enabledBlocks.contactForm || false}
-                        onCheckedChange={(checked) => handleToggle('contactForm', checked)}
-                    />
+
+                    {/* Contact Form Settings - only show if enabled */}
+                    {enabledBlocks.contactForm && (
+                        <div className="border-t p-4 bg-muted/30 space-y-6">
+                            {/* Form Text Customization */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Type className="h-4 w-4" />
+                                    Form Text Customization
+                                </div>
+
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="form-title">Form Title</Label>
+                                        <Input
+                                            id="form-title"
+                                            placeholder="Get in Touch"
+                                            value={contactFormSettings.title || ''}
+                                            onChange={(e) => updateContactSettings('title', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="button-text">Button Text</Label>
+                                        <Input
+                                            id="button-text"
+                                            placeholder="Send Message"
+                                            value={contactFormSettings.buttonText || ''}
+                                            onChange={(e) => updateContactSettings('buttonText', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="form-description">Description (optional)</Label>
+                                    <Textarea
+                                        id="form-description"
+                                        placeholder="We'd love to hear from you. Fill out the form below and we'll get back to you soon."
+                                        value={contactFormSettings.description || ''}
+                                        onChange={(e) => updateContactSettings('description', e.target.value)}
+                                        rows={2}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="success-message">Success Message</Label>
+                                    <Input
+                                        id="success-message"
+                                        placeholder="Thank you! Your message has been sent successfully."
+                                        value={contactFormSettings.successMessage || ''}
+                                        onChange={(e) => updateContactSettings('successMessage', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Additional Form Fields */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <PlusCircle className="h-4 w-4" />
+                                    Additional Form Fields
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Name, Email, and Message are always shown. Enable additional fields below.
+                                </p>
+
+                                <div className="space-y-3">
+                                    {/* Phone Field */}
+                                    <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+                                        <div className="flex items-center gap-3">
+                                            <Phone className="h-4 w-4 text-muted-foreground" />
+                                            <div>
+                                                <p className="text-sm font-medium">Phone Number</p>
+                                                <p className="text-xs text-muted-foreground">Optional phone field</p>
+                                            </div>
+                                        </div>
+                                        <Switch
+                                            checked={contactFormSettings.fields?.phone || false}
+                                            onCheckedChange={(checked) => toggleContactField('phone', checked)}
+                                        />
+                                    </div>
+
+                                    {/* Subject Field */}
+                                    <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+                                        <div className="flex items-center gap-3">
+                                            <Tag className="h-4 w-4 text-muted-foreground" />
+                                            <div>
+                                                <p className="text-sm font-medium">Subject</p>
+                                                <p className="text-xs text-muted-foreground">Message subject line</p>
+                                            </div>
+                                        </div>
+                                        <Switch
+                                            checked={contactFormSettings.fields?.subject || false}
+                                            onCheckedChange={(checked) => toggleContactField('subject', checked)}
+                                        />
+                                    </div>
+
+                                    {/* Company Field */}
+                                    <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+                                        <div className="flex items-center gap-3">
+                                            <Building className="h-4 w-4 text-muted-foreground" />
+                                            <div>
+                                                <p className="text-sm font-medium">Company</p>
+                                                <p className="text-xs text-muted-foreground">Company or organization name</p>
+                                            </div>
+                                        </div>
+                                        <Switch
+                                            checked={contactFormSettings.fields?.company || false}
+                                            onCheckedChange={(checked) => toggleContactField('company', checked)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Placeholder Customization */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <MessageSquare className="h-4 w-4" />
+                                    Field Placeholders
+                                </div>
+
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs">Name Placeholder</Label>
+                                        <Input
+                                            placeholder="John Doe"
+                                            value={contactFormSettings.placeholders?.name || ''}
+                                            onChange={(e) => updatePlaceholder('name', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs">Email Placeholder</Label>
+                                        <Input
+                                            placeholder="john@example.com"
+                                            value={contactFormSettings.placeholders?.email || ''}
+                                            onChange={(e) => updatePlaceholder('email', e.target.value)}
+                                        />
+                                    </div>
+                                    {contactFormSettings.fields?.phone && (
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Phone Placeholder</Label>
+                                            <Input
+                                                placeholder="+1 (555) 123-4567"
+                                                value={contactFormSettings.placeholders?.phone || ''}
+                                                onChange={(e) => updatePlaceholder('phone', e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                    {contactFormSettings.fields?.subject && (
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Subject Placeholder</Label>
+                                            <Input
+                                                placeholder="How can we help?"
+                                                value={contactFormSettings.placeholders?.subject || ''}
+                                                onChange={(e) => updatePlaceholder('subject', e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                    {contactFormSettings.fields?.company && (
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Company Placeholder</Label>
+                                            <Input
+                                                placeholder="Acme Inc."
+                                                value={contactFormSettings.placeholders?.company || ''}
+                                                onChange={(e) => updatePlaceholder('company', e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Message Placeholder</Label>
+                                    <Input
+                                        placeholder="Your message..."
+                                        value={contactFormSettings.placeholders?.message || ''}
+                                        onChange={(e) => updatePlaceholder('message', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
