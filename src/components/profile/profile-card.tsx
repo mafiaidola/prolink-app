@@ -307,9 +307,18 @@ const StackedLayout = ({ profile, selectedTheme }: { profile: Profile; selectedT
                     <CardTitle className={cn("text-3xl font-headline", selectedTheme.cardTitle)}>
                         <GradientText text={profile.name} gradient={profile.nameGradient} as="span" />
                     </CardTitle>
-                    {profile.isVerified && <BadgeCheck className="w-6 h-6 text-blue-500" />}
+                    {(profile.verifiedBadge?.enabled || profile.isVerified) && (() => {
+                        const iconName = profile.verifiedBadge?.icon || 'BadgeCheck';
+                        const iconColor = profile.verifiedBadge?.color || '#3b82f6';
+                        const iconSize = profile.verifiedBadge?.size || 'md';
+                        const sizeClass = iconSize === 'sm' ? 'w-4 h-4' : iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
+                        const IconComponent = getIconByName(iconName);
+                        return <IconComponent className={sizeClass} style={{ color: iconColor }} />;
+                    })()}
                 </div>
-                <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                <CardDescription className={cn("text-lg", selectedTheme.cardDescription)}>
+                    <GradientText text={profile.jobTitle} gradient={profile.jobTitleGradient} as="span" />
+                </CardDescription>
             </div>
 
             <div className="space-y-4 mt-6 text-center">
@@ -350,9 +359,18 @@ const MinimalistCenterLayout = ({ profile, selectedTheme }: { profile: Profile; 
                     <CardTitle className={cn("text-4xl font-headline", selectedTheme.cardTitle)}>
                         <GradientText text={profile.name} gradient={profile.nameGradient} as="span" />
                     </CardTitle>
-                    {profile.isVerified && <BadgeCheck className="w-7 h-7 text-blue-500" />}
+                    {(profile.verifiedBadge?.enabled || profile.isVerified) && (() => {
+                        const iconName = profile.verifiedBadge?.icon || 'BadgeCheck';
+                        const iconColor = profile.verifiedBadge?.color || '#3b82f6';
+                        const iconSize = profile.verifiedBadge?.size || 'md';
+                        const sizeClass = iconSize === 'sm' ? 'w-5 h-5' : iconSize === 'lg' ? 'w-8 h-8' : 'w-7 h-7';
+                        const IconComponent = getIconByName(iconName);
+                        return <IconComponent className={sizeClass} style={{ color: iconColor }} />;
+                    })()}
                 </div>
-                <CardDescription className={cn("text-xl", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                <CardDescription className={cn("text-xl", selectedTheme.cardDescription)}>
+                    <GradientText text={profile.jobTitle} gradient={profile.jobTitleGradient} as="span" />
+                </CardDescription>
                 <div className="space-y-4 pt-2 max-w-sm">
                     {profile.content?.map(block => <BlockRenderer key={block.id} block={block} selectedTheme={selectedTheme} />)}
                 </div>
@@ -398,9 +416,18 @@ const ModernSplitLayout = ({ profile, selectedTheme }: { profile: Profile; selec
                 <CardTitle className={cn("text-2xl font-headline", selectedTheme.cardTitle)}>
                     <GradientText text={profile.name} gradient={profile.nameGradient} as="span" />
                 </CardTitle>
-                {profile.isVerified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+                {(profile.verifiedBadge?.enabled || profile.isVerified) && (() => {
+                    const iconName = profile.verifiedBadge?.icon || 'BadgeCheck';
+                    const iconColor = profile.verifiedBadge?.color || '#3b82f6';
+                    const iconSize = profile.verifiedBadge?.size || 'md';
+                    const sizeClass = iconSize === 'sm' ? 'w-4 h-4' : iconSize === 'lg' ? 'w-6 h-6' : 'w-5 h-5';
+                    const IconComponent = getIconByName(iconName);
+                    return <IconComponent className={sizeClass} style={{ color: iconColor }} />;
+                })()}
             </div>
-            <CardDescription className={cn("text-md mt-1", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+            <CardDescription className={cn("text-md mt-1", selectedTheme.cardDescription)}>
+                <GradientText text={profile.jobTitle} gradient={profile.jobTitleGradient} as="span" />
+            </CardDescription>
 
             {(profile.vCard?.firstName || (profile.links && profile.links.length > 0)) && (
                 <>
@@ -445,9 +472,18 @@ const MinimalistLeftAlignLayout = ({ profile, selectedTheme }: { profile: Profil
                         <CardTitle className={cn("text-2xl font-headline", selectedTheme.cardTitle)}>
                             <GradientText text={profile.name} gradient={profile.nameGradient} as="span" />
                         </CardTitle>
-                        {profile.isVerified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+                        {(profile.verifiedBadge?.enabled || profile.isVerified) && (() => {
+                            const iconName = profile.verifiedBadge?.icon || 'BadgeCheck';
+                            const iconColor = profile.verifiedBadge?.color || '#3b82f6';
+                            const iconSize = profile.verifiedBadge?.size || 'md';
+                            const sizeClass = iconSize === 'sm' ? 'w-4 h-4' : iconSize === 'lg' ? 'w-6 h-6' : 'w-5 h-5';
+                            const IconComponent = getIconByName(iconName);
+                            return <IconComponent className={sizeClass} style={{ color: iconColor }} />;
+                        })()}
                     </div>
-                    <CardDescription className={cn("text-md", selectedTheme.cardDescription)}>{profile.jobTitle}</CardDescription>
+                    <CardDescription className={cn("text-md", selectedTheme.cardDescription)}>
+                        <GradientText text={profile.jobTitle} gradient={profile.jobTitleGradient} as="span" />
+                    </CardDescription>
                 </div>
             </div>
 

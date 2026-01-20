@@ -139,24 +139,32 @@ export function GradientText({
 }: GradientTextProps) {
     const preset = gradientPresets[gradient] || gradientPresets.none;
 
-    // If no gradient, render plain text
-    if (gradient === 'none' || !preset.gradient || preset.gradient === 'inherit') {
+    // If no gradient, render plain text with original className
+    if (!gradient || gradient === 'none' || !preset.gradient || preset.gradient === 'inherit') {
         return <Component className={className}>{text}</Component>;
     }
 
     const animationClass = getAnimationClass(preset.animation);
 
+    // Force transparent text fill to show gradient, overriding any text color classes
     const gradientStyle: React.CSSProperties = {
         background: preset.gradient,
         backgroundSize: '300% 300%',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
+        color: 'transparent', // Fallback for non-webkit browsers
     };
+
+    // Remove text color classes from className when gradient is active
+    const filteredClassName = className
+        .split(' ')
+        .filter(cls => !cls.startsWith('text-') || cls.startsWith('text-lg') || cls.startsWith('text-xl') || cls.startsWith('text-2xl') || cls.startsWith('text-3xl'))
+        .join(' ');
 
     return (
         <Component
-            className={`${className} ${animationClass}`}
+            className={`${filteredClassName} ${animationClass}`}
             style={gradientStyle}
         >
             {text}
