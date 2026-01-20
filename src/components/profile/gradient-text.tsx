@@ -3,7 +3,10 @@
 import { NameGradient } from '@/lib/types';
 
 // Animation types for different gradient effects
-type AnimationType = 'shift' | 'shimmer' | 'pulse' | 'flow' | 'wave' | 'none';
+type AnimationType =
+    | 'shift' | 'shimmer' | 'pulse' | 'flow' | 'wave' | 'none'
+    // Realistic themed animations
+    | 'fire' | 'matrix' | 'ocean' | 'aurora' | 'neon' | 'electric' | 'cyber' | 'rainbow';
 
 // Gradient preset definitions - 25 total presets with varied animations
 const gradientPresets: Record<NameGradient, { gradient: string; animation: AnimationType }> = {
@@ -17,32 +20,37 @@ const gradientPresets: Record<NameGradient, { gradient: string; animation: Anima
         animation: 'shimmer',
     },
     ocean: {
-        gradient: 'linear-gradient(90deg, #06b6d4, #3b82f6, #6366f1, #06b6d4)',
-        animation: 'flow',
+        // REALISTIC: Wave motion effect
+        gradient: 'linear-gradient(180deg, #0369a1, #06b6d4, #38bdf8, #06b6d4, #0369a1)',
+        animation: 'ocean',
     },
     neon: {
+        // REALISTIC: Neon glow pulse
         gradient: 'linear-gradient(90deg, #ec4899, #eab308, #06b6d4, #ec4899)',
-        animation: 'pulse',
+        animation: 'neon',
     },
     gold: {
         gradient: 'linear-gradient(90deg, #fbbf24, #f59e0b, #ea580c, #fbbf24)',
         animation: 'shimmer',
     },
     aurora: {
-        gradient: 'linear-gradient(90deg, #22c55e, #06b6d4, #a855f7, #22c55e)',
-        animation: 'wave',
+        // REALISTIC: Northern lights dancing
+        gradient: 'linear-gradient(135deg, #22c55e, #06b6d4, #a855f7, #06b6d4, #22c55e)',
+        animation: 'aurora',
     },
     fire: {
-        gradient: 'linear-gradient(90deg, #ef4444, #f97316, #eab308, #ef4444)',
-        animation: 'pulse',
+        // REALISTIC: Flickering flames
+        gradient: 'linear-gradient(180deg, #fbbf24, #f97316, #ef4444, #dc2626)',
+        animation: 'fire',
     },
     royal: {
         gradient: 'linear-gradient(90deg, #a855f7, #3b82f6, #ec4899, #a855f7)',
         animation: 'shimmer',
     },
     matrix: {
-        gradient: 'linear-gradient(90deg, #166534, #22c55e, #4ade80, #166534)',
-        animation: 'flow',
+        // REALISTIC: Digital rain
+        gradient: 'linear-gradient(180deg, #052e16, #166534, #22c55e, #4ade80, #22c55e, #166534)',
+        animation: 'matrix',
     },
     // Dramatic new presets
     candy: {
@@ -50,8 +58,9 @@ const gradientPresets: Record<NameGradient, { gradient: string; animation: Anima
         animation: 'wave',
     },
     cyber: {
+        // REALISTIC: Glitch effect
         gradient: 'linear-gradient(90deg, #06b6d4, #d946ef, #facc15, #06b6d4)',
-        animation: 'pulse',
+        animation: 'cyber',
     },
     nature: {
         gradient: 'linear-gradient(90deg, #22c55e, #14b8a6, #0ea5e9, #22c55e)',
@@ -74,8 +83,9 @@ const gradientPresets: Record<NameGradient, { gradient: string; animation: Anima
         animation: 'shimmer',
     },
     rainbow: {
-        gradient: 'linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ef4444)',
-        animation: 'wave',
+        // REALISTIC: Flowing spectrum
+        gradient: 'linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ec4899, #ef4444)',
+        animation: 'rainbow',
     },
     peach: {
         gradient: 'linear-gradient(90deg, #fda4af, #fb923c, #fbbf24, #fda4af)',
@@ -95,8 +105,9 @@ const gradientPresets: Record<NameGradient, { gradient: string; animation: Anima
     },
     // NEW 4 presets for 25 total
     electric: {
+        // REALISTIC: Spark flashes
         gradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #f97316, #3b82f6)',
-        animation: 'pulse',
+        animation: 'electric',
     },
     plasma: {
         gradient: 'linear-gradient(90deg, #d946ef, #f43f5e, #fb923c, #d946ef)',
@@ -120,6 +131,15 @@ function getAnimationClass(animation: AnimationType): string {
         case 'pulse': return 'animate-gradient-pulse';
         case 'flow': return 'animate-gradient-flow';
         case 'wave': return 'animate-gradient-wave';
+        // Realistic themed animations
+        case 'fire': return 'animate-gradient-fire';
+        case 'matrix': return 'animate-gradient-matrix';
+        case 'ocean': return 'animate-gradient-ocean';
+        case 'aurora': return 'animate-gradient-aurora';
+        case 'neon': return 'animate-gradient-neon';
+        case 'electric': return 'animate-gradient-electric';
+        case 'cyber': return 'animate-gradient-cyber';
+        case 'rainbow': return 'animate-gradient-rainbow';
         default: return '';
     }
 }
